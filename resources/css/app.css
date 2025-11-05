@@ -1,11 +1,179 @@
-@import 'tailwindcss';
+/* Reset dasar */
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Wrapper utama */
+
+.auth-container {
+    display: flex;
+    width: 900px;
+    height: 520px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+
+/* Kiri */
+
+.auth-left {
+    flex: 1;
+    background: linear-gradient(135deg, #b10000, #ff7b00);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.auth-left img.logo {
+    width: 120px;
+    margin-bottom: 20px;
+}
+
+.auth-left h2 {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+
+/* Kanan */
+
+.auth-right {
+    flex: 1.1;
+    background: #fff;
+    padding: 50px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-right h3 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+
+/* Form styling */
+
+.auth-form input,
+.auth-form select {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+    border-color: #b10000;
+    outline: none;
+    box-shadow: 0 0 4px rgba(177, 0, 0, 0.3);
+}
+
+.auth-form select {
+    background: white;
+}
+
+
+/* Link kecil */
+
+.form-links {
+    text-align: right;
+    margin-bottom: 12px;
+}
+
+.form-links a {
+    font-size: 13px;
+    color: #b10000;
+    text-decoration: none;
+}
+
+.form-links a:hover {
+    text-decoration: underline;
+}
+
+
+/* Tombol */
+
+.btn-auth {
+    width: 100%;
+    background: linear-gradient(90deg, #b10000, #ff7b00);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-auth:hover {
+    background: linear-gradient(90deg, #d60000, #ff9900);
+}
+
+
+/* Text bawah */
+
+.text-small {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+.text-small a {
+    color: #b10000;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.text-small a:hover {
+    text-decoration: underline;
+}
+
+
+/* Responsif untuk HP */
+
+@media (max-width: 768px) {
+    .auth-container {
+        flex-direction: column;
+        width: 90%;
+        height: auto;
+    }
+    .auth-left {
+        padding: 30px;
+    }
+    .auth-right {
+        padding: 30px;
+    }
+    .auth-left img.logo {
+        width: 90px;
+    }
+    .auth-left h2 {
+        font-size: 18px;
+    }
 }

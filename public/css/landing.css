@@ -1,0 +1,299 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    color: #222;
+    background-color: #fff;
+}
+
+
+/* Navbar */
+
+.navbar {
+    background: #dc2626;
+    border-bottom: 1px solid #b91c1c;
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo img {
+    width: 45px;
+    height: 45px;
+}
+
+.logo-text h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.logo-text p {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+nav a {
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+}
+
+nav a:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    font-size: inherit;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+}
+
+.logout-btn:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.btn-login {
+    border: 1px solid #e63946;
+    padding: 6px 14px;
+    border-radius: 20px;
+    color: #e63946;
+}
+
+.btn-login:hover {
+    background: #e63946;
+    color: #fff;
+}
+
+
+/* Container */
+
+.container {
+    width: 85%;
+    margin: auto;
+}
+
+
+/* Hero */
+
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 0;
+    background: #fff;
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hero-text {
+    max-width: 50%;
+}
+
+.hero-text h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.hero-text span {
+    color: #e63946;
+}
+
+.hero-text p {
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.btn-primary {
+    display: inline-block;
+    background: #e63946;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background: #c62828;
+}
+
+.hero-img img {
+    width: 400px;
+    border-radius: 10px;
+}
+
+
+/* Statistik */
+
+.stats {
+    background: #e63946;
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+}
+
+.stats-grid {
+    display: flex;
+    justify-content: space-around;
+}
+
+.stats-grid h3 {
+    font-size: 2rem;
+}
+
+
+/* Fitur */
+
+.fitur {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.tag {
+    display: inline-block;
+    background: #ffe0e0;
+    padding: 5px 15px;
+    border-radius: 20px;
+    color: #e63946;
+    margin-bottom: 10px;
+}
+
+.fitur-grid {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+
+.fitur-item {
+    width: 30%;
+    text-align: center;
+}
+
+
+/* Kenapa */
+
+.kenapa {
+    background: #fff7f7;
+    padding: 80px 0;
+}
+
+.kenapa-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.kenapa-text {
+    width: 50%;
+}
+
+.kenapa-img img {
+    width: 400px;
+    border-radius: 10px;
+}
+
+
+/* CTA */
+
+.cta {
+    background: #e63946;
+    color: #fff;
+    text-align: center;
+    padding: 60px 0;
+}
+
+.cta-footer {
+    margin-top: 10px;
+}
+
+
+/* Tim */
+
+.tim {
+    text-align: center;
+    padding: 80px 0;
+}
+
+.tim-grid {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.member img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+
+/* Footer */
+
+footer {
+    background: #e63946;
+    color: #ccc;
+    padding: 50px 0;
+}
+
+.footer-grid {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.footer-grid a {
+    display: block;
+    color: #aaa;
+    text-decoration: none;
+    margin: 5px 0;
+}
+
+.footer-grid a:hover {
+    color: #fff;
+}
+
+.copyright {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+#progress-bar {
+    transition: width 0.5s linear;
+}

@@ -1,0 +1,432 @@
+/* Enhanced Responsive Dashboard CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #fff7f2;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Enhanced Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #c12727 0%, #ff9100 100%);
+    color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-area img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.logo-area h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+}
+
+.nav-links a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-logout {
+    background: #e63946;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-logout:hover {
+    background: #d62828;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Dashboard Content */
+.dashboard {
+    padding: 3rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.welcome-box {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border-left: 5px solid #ff9100;
+    padding: 2.5rem;
+    border-radius: 15px;
+    margin-bottom: 3rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-box h2 {
+    color: #c12727;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-box h2 span {
+    color: #ff9100;
+}
+
+.welcome-box p {
+    color: #666;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Enhanced Cards */
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+    color: #c12727;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.card p {
+    color: #666;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.card button {
+    background: linear-gradient(135deg, #c12727 0%, #ff9100 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+}
+
+.card button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(193, 39, 39, 0.3);
+}
+
+/* Enhanced Footer */
+footer {
+    background: linear-gradient(135deg, #c12727 0%, #ff9100 100%);
+    color: white;
+    text-align: center;
+    padding: 2rem;
+    margin-top: 3rem;
+}
+
+footer p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Comprehensive Responsive Design */
+
+/* Large Tablets and Small Desktops */
+@media (max-width: 1024px) {
+    .dashboard {
+        padding: 2rem 1.5rem;
+    }
+
+    .welcome-box {
+        padding: 2rem;
+    }
+
+    .welcome-box h2 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.75rem 1.5rem;
+        position: relative;
+    }
+
+    .logo-area h1 {
+        font-size: 1.3rem;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #c12727 0%, #ff9100 100%);
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        gap: 0.5rem;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .dashboard {
+        padding: 1.5rem 1rem;
+    }
+
+    .welcome-box {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .welcome-box h2 {
+        font-size: 1.6rem;
+    }
+
+    .welcome-box p {
+        font-size: 1rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .card h3 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Mobile Landscape */
+@media (max-width: 640px) {
+    .navbar {
+        padding: 0.5rem 1rem;
+    }
+
+    .logo-area img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .logo-area h1 {
+        font-size: 1.1rem;
+    }
+
+    .dashboard {
+        padding: 1rem 0.75rem;
+    }
+
+    .welcome-box {
+        padding: 1.25rem;
+    }
+
+    .welcome-box h2 {
+        font-size: 1.4rem;
+    }
+}
+
+/* Mobile Portrait */
+@media (max-width: 480px) {
+    .navbar {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .logo-area img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .logo-area h1 {
+        font-size: 1rem;
+    }
+
+    .dashboard {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .welcome-box {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .welcome-box h2 {
+        font-size: 1.2rem;
+    }
+
+    .welcome-box p {
+        font-size: 0.9rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .card h3 {
+        font-size: 1.1rem;
+    }
+
+    .card button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Extra Small Devices */
+@media (max-width: 360px) {
+    .dashboard {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .welcome-box {
+        padding: 0.75rem;
+    }
+
+    .welcome-box h2 {
+        font-size: 1.1rem;
+    }
+
+    .welcome-box p {
+        font-size: 0.85rem;
+    }
+
+    .card {
+        padding: 0.75rem;
+    }
+
+    .card h3 {
+        font-size: 1rem;
+    }
+
+    .card button {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .card:hover {
+        transform: none;
+    }
+
+    .card:active {
+        transform: scale(0.98);
+    }
+
+    .btn-logout:hover {
+        transform: none;
+    }
+
+    .btn-logout:active {
+        transform: scale(0.95);
+    }
+
+    .nav-links a:hover {
+        transform: none;
+    }
+
+    .nav-links a:active {
+        background: rgba(255, 255, 255, 0.3);
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+    .logo-area img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    .navbar,
+    .mobile-menu-btn,
+    footer {
+        display: none;
+    }
+
+    .dashboard {
+        padding: 0;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+    }
+}

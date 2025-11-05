@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,11 +14,30 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Run seeders in order
+        $this->call([
+            ClassSeeder::class,
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create user after classes are created
+        DB::table('users')->insert([
+            'user_id' => 1,
+            'user_name' => 'Rega Rahadianz',
+            'email' => 'rega@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'siswa',
+            'class_id' => 1,
+            'created_at' => now()
+        ]);
+
+        // Run video and quiz seeders
+        $this->call([
+            VideoClassSeeder::class,
+            QuizClassSeeder::class,
+            QuizKelas10Seeder::class,
+            QuizSettingsSeeder::class,
+            DefaultDataSeeder::class,
+            AdminUserSeeder::class,
         ]);
     }
 }

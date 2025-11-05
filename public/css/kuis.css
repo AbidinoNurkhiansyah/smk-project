@@ -1,0 +1,29 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f9f9f9;
+    color: #333;
+}
+
+.quiz-box {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.question h5 {
+    color: #222;
+    font-weight: 600;
+}
+
+.btn-danger {
+    background-color: #e63946;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c12727;
+}
+
+footer {
+    font-size: 0.9rem;
+    margin-top: 3rem;
+}
