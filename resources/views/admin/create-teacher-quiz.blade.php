@@ -172,14 +172,14 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <label class="form-label">Pertanyaan <span class="text-danger">*</span></label>
-                                <textarea class="form-control" name="questions[${questionCount}][question]" 
+                                <textarea class="form-control" name="questions[${questionCount - 1}][question]" 
                                           rows="3" placeholder="Masukkan pertanyaan" required></textarea>
                             </div>
                             
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Jawaban Benar <span class="text-danger">*</span></label>
-                                    <select class="form-select" name="questions[${questionCount}][correct_answer]" required>
+                                    <select class="form-select" name="questions[${questionCount - 1}][correct_answer]" required>
                                         <option value="">Pilih Jawaban Benar</option>
                                         <option value="A">A</option>
                                         <option value="B">B</option>
@@ -190,7 +190,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Poin <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="questions[${questionCount}][points]" 
+                                    <input type="number" class="form-control" name="questions[${questionCount - 1}][points]" 
                                            min="1" max="100" value="10" required>
                                 </div>
                             </div>
@@ -201,35 +201,35 @@
                                     <div class="col-md-6 mb-2">
                                         <div class="input-group">
                                             <span class="input-group-text">A</span>
-                                            <input type="text" class="form-control" name="questions[${questionCount}][options][0]" 
+                                            <input type="text" class="form-control" name="questions[${questionCount - 1}][options][0]" 
                                                    placeholder="Pilihan A" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-2">
                                         <div class="input-group">
                                             <span class="input-group-text">B</span>
-                                            <input type="text" class="form-control" name="questions[${questionCount}][options][1]" 
+                                            <input type="text" class="form-control" name="questions[${questionCount - 1}][options][1]" 
                                                    placeholder="Pilihan B" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-2">
                                         <div class="input-group">
                                             <span class="input-group-text">C</span>
-                                            <input type="text" class="form-control" name="questions[${questionCount}][options][2]" 
+                                            <input type="text" class="form-control" name="questions[${questionCount - 1}][options][2]" 
                                                    placeholder="Pilihan C" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-2">
                                         <div class="input-group">
                                             <span class="input-group-text">D</span>
-                                            <input type="text" class="form-control" name="questions[${questionCount}][options][3]" 
+                                            <input type="text" class="form-control" name="questions[${questionCount - 1}][options][3]" 
                                                    placeholder="Pilihan D" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-2">
                                         <div class="input-group">
                                             <span class="input-group-text">E</span>
-                                            <input type="text" class="form-control" name="questions[${questionCount}][options][4]" 
+                                            <input type="text" class="form-control" name="questions[${questionCount - 1}][options][4]" 
                                                    placeholder="Pilihan E (opsional)">
                                         </div>
                                     </div>
@@ -247,6 +247,14 @@
             const questionCard = document.getElementById(`question-${questionId}`);
             if (questionCard) {
                 questionCard.remove();
+                // Recalculate question numbers
+                const remainingQuestions = document.querySelectorAll('.question-card');
+                remainingQuestions.forEach((card, index) => {
+                    const header = card.querySelector('.card-header h6');
+                    if (header) {
+                        header.textContent = `Soal ${index + 1}`;
+                    }
+                });
             }
         }
 
@@ -257,9 +265,38 @@
 
         // Form validation
         document.getElementById('quizForm').addEventListener('submit', function(e) {
-            if (questionCount === 0) {
+            const questionCards = document.querySelectorAll('.question-card');
+            if (questionCards.length === 0) {
                 e.preventDefault();
                 alert('Minimal harus ada 1 soal!');
+                return false;
+            }
+            
+            // Validate that all questions have required fields
+            let isValid = true;
+            questionCards.forEach((card, index) => {
+                const question = card.querySelector(`textarea[name*="[question]"]`);
+                const correctAnswer = card.querySelector(`select[name*="[correct_answer]"]`);
+                const options = card.querySelectorAll(`input[name*="[options]"]`);
+                
+                if (!question || !question.value.trim()) {
+                    isValid = false;
+                }
+                if (!correctAnswer || !correctAnswer.value) {
+                    isValid = false;
+                }
+                let filledOptions = 0;
+                options.forEach(opt => {
+                    if (opt.value.trim()) filledOptions++;
+                });
+                if (filledOptions < 2) {
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Pastikan semua soal memiliki pertanyaan, jawaban benar, dan minimal 2 pilihan jawaban!');
                 return false;
             }
         });
