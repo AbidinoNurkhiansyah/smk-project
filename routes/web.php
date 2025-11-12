@@ -15,6 +15,12 @@ Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->
 Route::get('/profile', [App\Http\Controllers\AuthController::class, 'showProfile'])->name('profile');
 Route::post('/profile', [App\Http\Controllers\AuthController::class, 'updateProfile'])->name('profile.update');
 
+// Password Reset Routes
+Route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotPassword'])->name('password.forgot');
+Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'forgotPassword']);
+Route::get('/reset-password', [App\Http\Controllers\AuthController::class, 'showResetPassword'])->name('password.reset');
+Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'resetPassword']);
+
 
 
 Route::get('/welcome', function () {

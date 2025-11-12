@@ -401,15 +401,23 @@ class AdminController extends Controller
         return redirect()->route('admin.quiz-questions', $id)->with('success', 'Soal berhasil dihapus!');
     }
 
-    public function students()
+    public function students(Request $request)
     {
-        $students = DB::table('users')
+        $selectedClass = $request->get('class_id', 'all');
+        $classes = DB::table('classes')->get();
+        
+        $studentsQuery = DB::table('users')
             ->join('classes', 'users.class_id', '=', 'classes.class_id')
             ->where('users.role', 'siswa')
-            ->select('users.*', 'classes.class_name')
-            ->get();
+            ->select('users.*', 'classes.class_name');
+        
+        if ($selectedClass !== 'all') {
+            $studentsQuery->where('users.class_id', $selectedClass);
+        }
+        
+        $students = $studentsQuery->orderBy('users.created_at', 'desc')->get();
 
-        return view('admin.students', compact('students'));
+        return view('admin.students', compact('students', 'classes', 'selectedClass'));
     }
 
     public function deleteStudent($id)

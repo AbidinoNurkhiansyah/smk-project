@@ -108,6 +108,28 @@
             font-size: 14px;
             color: #6c757d;
         }
+
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .password-input-wrapper .form-control {
+            padding-right: 45px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #dc2626;
+        }
     </style>
 </head>
 <body>
@@ -158,18 +180,27 @@
 
                     <div class="mb-3">
                         <label for="current_password" class="form-label">Password Saat Ini</label>
-                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        <div class="password-input-wrapper">
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                            <i class="fas fa-eye toggle-password" id="toggleCurrentPassword"></i>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="new_password" class="form-label">Password Baru (opsional)</label>
-                        <input type="password" class="form-control" id="new_password" name="new_password">
+                        <div class="password-input-wrapper">
+                            <input type="password" class="form-control" id="new_password" name="new_password">
+                            <i class="fas fa-eye toggle-password" id="toggleNewPassword"></i>
+                        </div>
                         <div class="form-text">Kosongkan jika tidak ingin mengubah password</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="new_password_confirmation" class="form-label">Konfirmasi Password Baru</label>
-                        <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation">
+                        <div class="password-input-wrapper">
+                            <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation">
+                            <i class="fas fa-eye toggle-password" id="toggleNewPasswordConfirmation"></i>
+                        </div>
                     </div>
 
                     <div class="d-flex justify-content-between">
@@ -186,5 +217,54 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle current password visibility
+        document.getElementById('toggleCurrentPassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('current_password');
+            const toggleIcon = this;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+
+        // Toggle new password visibility
+        document.getElementById('toggleNewPassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('new_password');
+            const toggleIcon = this;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+
+        // Toggle new password confirmation visibility
+        document.getElementById('toggleNewPasswordConfirmation').addEventListener('click', function() {
+            const passwordInput = document.getElementById('new_password_confirmation');
+            const toggleIcon = this;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -39,19 +39,19 @@
                 </div>
             @endif
 
-            <form action="{{ route('register') }}" method="POST">
+            <form action="{{ route('register') }}" method="POST" autocomplete="off">
                 @csrf
                 
                 <div class="form-group">
-                    <input type="text" class="form-control" name="user_name" placeholder="Nama Lengkap" value="{{ old('user_name') }}" required>
+                    <input type="text" class="form-control" name="user_name" placeholder="Nama Lengkap" value="{{ old('user_name') }}" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" required>
                 </div>
 
                 <div class="form-group">
-                    <input type="email" class="form-control" name="email" placeholder="Email" value="{{ old('email') }}" required>
+                    <input type="email" class="form-control" name="email" placeholder="Email" value="{{ old('email') }}" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" required>
                 </div>
 
                 <div class="form-group">
-                    <select class="form-select" name="class_id" required>
+                    <select class="form-select" name="class_id" autocomplete="off" required>
                         <option value="">Pilih Kelas</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->class_id }}" {{ old('class_id') == $class->class_id ? 'selected' : '' }}>
@@ -62,7 +62,10 @@
                 </div>
 
                 <div class="form-group">
-                    <input type="password" class="form-control" name="password" placeholder="Enter Your Password" required>
+                    <div class="password-input-wrapper">
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Enter Your Password" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')" required>
+                        <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary">
@@ -77,5 +80,22 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = this;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+    </script>
 </body>
 </html>

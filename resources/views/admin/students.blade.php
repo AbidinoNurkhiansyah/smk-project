@@ -69,6 +69,34 @@
 
         <!-- Content -->
         <div class="content">
+            <!-- Class Filter -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-filter me-2"></i>
+                                Filter Kelas
+                            </h5>
+                            <div class="class-filter">
+                                <a href="{{ route('admin.students') }}" 
+                                   class="class-badge {{ $selectedClass === 'all' ? 'active' : '' }}">
+                                    <i class="fas fa-globe me-1"></i>
+                                    Semua Kelas
+                                </a>
+                                @foreach($classes as $class)
+                                <a href="{{ route('admin.students', ['class_id' => $class->class_id]) }}" 
+                                   class="class-badge {{ $selectedClass == $class->class_id ? 'active' : '' }}">
+                                    <i class="fas fa-graduation-cap me-1"></i>
+                                    {{ $class->class_name }}
+                                </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Students Table -->
             <div class="card">
                 <div class="card-header">
