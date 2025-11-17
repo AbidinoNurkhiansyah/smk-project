@@ -48,7 +48,7 @@
                                     <h5><i class="fas fa-edit"></i> Edit Informasi Quiz</h5>
                                 </div>
                                 <div class="card-body">
-                                    <form method="POST" action="{{ route('admin.update-teacher-quiz', $quiz->id) }}">
+                                    <form method="POST" action="{{ route('admin.update-teacher-quiz', $quiz->id) }}" enctype="multipart/form-data">
                                         @csrf
                                         @method('PUT')
                                         
@@ -110,10 +110,108 @@
                                             </div>
                                         </div>
 
+                                        <input type="hidden" name="total_questions" value="{{ $quiz->total_questions }}">
+                                        
                                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                             <a href="{{ route('admin.show-teacher-quiz', $quiz->id) }}" class="btn btn-outline-secondary me-md-2">Batal</a>
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="fas fa-save"></i> Simpan Perubahan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Questions Edit Section -->
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-question-circle"></i> Edit Soal</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form method="POST" action="{{ route('admin.update-teacher-quiz', $quiz->id) }}" enctype="multipart/form-data" id="questionsForm">
+                                        @csrf
+                                        @method('PUT')
+                                        
+                                        <input type="hidden" name="class_id" value="{{ $quiz->class_id }}">
+                                        <input type="hidden" name="quiz_title" value="{{ $quiz->quiz_title }}">
+                                        <input type="hidden" name="quiz_description" value="{{ $quiz->quiz_description }}">
+                                        <input type="hidden" name="total_questions" value="{{ $quiz->total_questions }}">
+                                        <input type="hidden" name="time_limit" value="{{ $quiz->time_limit }}">
+                                        <input type="hidden" name="points_per_question" value="{{ $quiz->points_per_question }}">
+                                        <input type="hidden" name="difficulty" value="{{ $quiz->difficulty }}">
+                                        <input type="hidden" name="is_active" value="{{ $quiz->is_active ? 1 : 0 }}">
+                                        
+                                        @foreach($questionsWithOptions as $index => $item)
+                                            @php
+                                                $question = $item['question'];
+                                                $options = $item['options'];
+                                            @endphp
+                                            <div class="card mb-3">
+                                                <div class="card-header">
+                                                    <h6>Soal {{ $index + 1 }}</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Pertanyaan <span class="text-danger">*</span></label>
+                                                        <textarea class="form-control" name="questions[{{ $index }}][question]" rows="3" required>{{ $question->question }}</textarea>
+                                                    </div>
+                                                    
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Gambar Soal (Opsional)</label>
+                                                        @if($question->image)
+                                                            <div class="mb-2">
+                                                                <img src="{{ Storage::url($question->image) }}" alt="Gambar soal" class="img-thumbnail" style="max-width: 300px; max-height: 300px;">
+                                                                <input type="hidden" name="questions[{{ $index }}][existing_image]" value="{{ $question->image }}">
+                                                            </div>
+                                                        @endif
+                                                        <input type="file" class="form-control" name="questions[{{ $index }}][image]" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
+                                                        <small class="form-text text-muted">Format: JPEG, PNG, JPG, GIF, WEBP (Maks: 2MB). Kosongkan jika tidak ingin mengubah gambar.</small>
+                                                    </div>
+                                                    
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Jawaban Benar <span class="text-danger">*</span></label>
+                                                            <select class="form-select" name="questions[{{ $index }}][correct_answer]" required>
+                                                                <option value="A" {{ $question->correct_answer == 'A' ? 'selected' : '' }}>A</option>
+                                                                <option value="B" {{ $question->correct_answer == 'B' ? 'selected' : '' }}>B</option>
+                                                                <option value="C" {{ $question->correct_answer == 'C' ? 'selected' : '' }}>C</option>
+                                                                <option value="D" {{ $question->correct_answer == 'D' ? 'selected' : '' }}>D</option>
+                                                                <option value="E" {{ $question->correct_answer == 'E' ? 'selected' : '' }}>E</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Poin <span class="text-danger">*</span></label>
+                                                            <input type="number" class="form-control" name="questions[{{ $index }}][points]" value="{{ $question->points }}" min="1" max="100" required>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Pilihan Jawaban <span class="text-danger">*</span></label>
+                                                        @php
+                                                            $optionLabels = ['A', 'B', 'C', 'D', 'E'];
+                                                            $optionsArray = [];
+                                                            foreach ($options as $opt) {
+                                                                $optionsArray[$opt->option_label] = $opt->option_text;
+                                                            }
+                                                        @endphp
+                                                        @foreach($optionLabels as $labelIndex => $label)
+                                                            <div class="input-group mb-2">
+                                                                <span class="input-group-text">{{ $label }}</span>
+                                                                <input type="text" class="form-control" name="questions[{{ $index }}][options][{{ $labelIndex }}]" 
+                                                                       value="{{ $optionsArray[$label] ?? '' }}" 
+                                                                       placeholder="Pilihan {{ $label }}" 
+                                                                       {{ $labelIndex < 2 ? 'required' : '' }}>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                            <a href="{{ route('admin.show-teacher-quiz', $quiz->id) }}" class="btn btn-outline-secondary me-md-2">Batal</a>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save"></i> Simpan Perubahan Soal
                                             </button>
                                         </div>
                                     </form>

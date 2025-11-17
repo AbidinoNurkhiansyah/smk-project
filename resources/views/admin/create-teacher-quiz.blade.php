@@ -41,7 +41,7 @@
 
     <!-- Main Content -->
     <div class="main-content">
-        <form action="{{ route('admin.store-teacher-quiz') }}" method="POST" id="quizForm">
+        <form action="{{ route('admin.store-teacher-quiz') }}" method="POST" id="quizForm" enctype="multipart/form-data">
             @csrf
             
             <!-- Quiz Information -->
@@ -176,6 +176,16 @@
                                           rows="3" placeholder="Masukkan pertanyaan" required></textarea>
                             </div>
                             
+                            <div class="mb-3">
+                                <label class="form-label">Gambar Soal (Opsional)</label>
+                                <input type="file" class="form-control" name="questions[${questionCount - 1}][image]" 
+                                       accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
+                                <small class="form-text text-muted">Format: JPEG, PNG, JPG, GIF, WEBP (Maks: 2MB)</small>
+                                <div class="mt-2 image-preview-container" id="preview-${questionCount}" style="display: none;">
+                                    <img src="" alt="Preview" class="img-thumbnail" style="max-width: 300px; max-height: 300px;">
+                                </div>
+                            </div>
+                            
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Jawaban Benar <span class="text-danger">*</span></label>
@@ -261,6 +271,25 @@
         // Add first question on page load
         document.addEventListener('DOMContentLoaded', function() {
             addQuestion();
+            
+            // Add image preview functionality
+            document.addEventListener('change', function(e) {
+                if (e.target.type === 'file' && e.target.name.includes('[image]')) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        const previewContainer = e.target.closest('.card-body').querySelector('.image-preview-container');
+                        const previewImg = previewContainer.querySelector('img');
+                        
+                        reader.onload = function(e) {
+                            previewImg.src = e.target.result;
+                            previewContainer.style.display = 'block';
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
         });
 
         // Form validation

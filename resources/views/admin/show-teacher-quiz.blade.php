@@ -117,6 +117,11 @@
                                         </div>
                                         <div class="question-content">
                                             <p class="question-text">{{ $question->question }}</p>
+                                            @if($question->image)
+                                                <div class="mb-3">
+                                                    <img src="{{ Storage::url($question->image) }}" alt="Gambar soal" class="img-fluid rounded" style="max-width: 500px; max-height: 400px;">
+                                                </div>
+                                            @endif
                                             <div class="options-list">
                                                 @if(isset($allOptions[$question->id]))
                                                     @foreach($allOptions[$question->id] as $option)

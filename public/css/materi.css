@@ -20,7 +20,7 @@ body {
     padding: 1rem 2rem;
     background: linear-gradient(135deg, #c12727 0%, #ff9100 100%);
     color: white;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -61,7 +61,7 @@ body {
 }
 
 .nav-links a:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
 }
 
@@ -96,7 +96,7 @@ body {
 }
 
 .mobile-menu-btn:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Main Content */
@@ -113,7 +113,7 @@ body {
     padding: 2.5rem;
     border-radius: 15px;
     margin-bottom: 3rem;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .page-header h1 {
@@ -134,7 +134,7 @@ body {
     background: white;
     padding: 2rem;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
 }
 
@@ -184,7 +184,7 @@ body {
     background: white;
     padding: 2rem;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
 }
 
@@ -266,14 +266,14 @@ body {
     background: white;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     position: relative;
 }
 
 .materi-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
 .materi-thumbnail {
@@ -418,7 +418,7 @@ footer p {
     .main-content {
         padding: 2rem 1.5rem;
     }
-    
+
     .materi-grid {
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 1.5rem;
@@ -431,11 +431,11 @@ footer p {
         padding: 0.75rem 1.5rem;
         position: relative;
     }
-    
+
     .logo-area h1 {
         font-size: 1.3rem;
     }
-    
+
     .nav-links {
         display: none;
         position: absolute;
@@ -445,49 +445,49 @@ footer p {
         background: linear-gradient(135deg, #c12727 0%, #ff9100 100%);
         flex-direction: column;
         padding: 1rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         gap: 0.5rem;
     }
-    
+
     .nav-links.active {
         display: flex;
     }
-    
+
     .mobile-menu-btn {
         display: block;
     }
-    
+
     .main-content {
         padding: 1.5rem 1rem;
     }
-    
+
     .page-header {
         padding: 2rem;
     }
-    
+
     .page-header h1 {
         font-size: 1.8rem;
     }
-    
+
     .filter-row {
         flex-direction: column;
         align-items: stretch;
         gap: 1rem;
     }
-    
+
     .search-box {
         min-width: auto;
     }
-    
+
     .materi-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
+
     .materi-actions {
         flex-direction: column;
     }
-    
+
     .progress-stats {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -498,24 +498,24 @@ footer p {
     .navbar {
         padding: 0.5rem 1rem;
     }
-    
+
     .logo-area img {
         width: 40px;
         height: 40px;
     }
-    
+
     .logo-area h1 {
         font-size: 1.1rem;
     }
-    
+
     .main-content {
         padding: 1rem 0.75rem;
     }
-    
+
     .page-header {
         padding: 1.5rem;
     }
-    
+
     .page-header h1 {
         font-size: 1.6rem;
     }
@@ -526,41 +526,41 @@ footer p {
     .navbar {
         padding: 0.5rem 0.75rem;
     }
-    
+
     .logo-area img {
         width: 35px;
         height: 35px;
     }
-    
+
     .logo-area h1 {
         font-size: 1rem;
     }
-    
+
     .main-content {
         padding: 0.75rem 0.5rem;
     }
-    
+
     .page-header {
         padding: 1.25rem;
     }
-    
+
     .page-header h1 {
         font-size: 1.4rem;
     }
-    
+
     .materi-card {
         margin-bottom: 1rem;
     }
-    
+
     .materi-thumbnail {
         height: 180px;
         font-size: 2.5rem;
     }
-    
+
     .materi-content {
         padding: 1.5rem;
     }
-    
+
     .progress-stats {
         grid-template-columns: 1fr;
     }
@@ -571,24 +571,24 @@ footer p {
     .main-content {
         padding: 0.5rem 0.25rem;
     }
-    
+
     .page-header {
         padding: 1rem;
     }
-    
+
     .page-header h1 {
         font-size: 1.2rem;
     }
-    
+
     .materi-thumbnail {
         height: 150px;
         font-size: 2rem;
     }
-    
+
     .materi-content {
         padding: 1rem;
     }
-    
+
     .materi-title {
         font-size: 1.2rem;
     }
@@ -599,30 +599,31 @@ footer p {
     .materi-card:hover {
         transform: none;
     }
-    
+
     .materi-card:active {
         transform: scale(0.98);
     }
-    
+
     .btn-materi:hover {
         transform: none;
     }
-    
+
     .btn-materi:active {
         transform: scale(0.95);
     }
-    
+
     .nav-links a:hover {
         transform: none;
     }
-    
+
     .nav-links a:active {
-        background: rgba(255,255,255,0.3);
+        background: rgba(255, 255, 255, 0.3);
     }
 }
 
 /* High DPI Displays */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
     .logo-area img {
         image-rendering: -webkit-optimize-contrast;
         image-rendering: crisp-edges;
@@ -631,17 +632,18 @@ footer p {
 
 /* Print Styles */
 @media print {
+
     .navbar,
     .mobile-menu-btn,
     .filter-section,
     footer {
         display: none;
     }
-    
+
     .main-content {
         padding: 0;
     }
-    
+
     .materi-card {
         box-shadow: none;
         border: 1px solid #ddd;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class TeacherQuizController extends Controller
 {
@@ -57,7 +58,8 @@ class TeacherQuizController extends Controller
                 'questions.*.options.1' => 'required|string|max:200',
                 'questions.*.options.2' => 'nullable|string|max:200',
                 'questions.*.options.3' => 'nullable|string|max:200',
-                'questions.*.options.4' => 'nullable|string|max:200'
+                'questions.*.options.4' => 'nullable|string|max:200',
+                'questions.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
             ]);
 
             // Check if user is logged in
@@ -90,9 +92,18 @@ class TeacherQuizController extends Controller
                     continue; // Skip empty questions
                 }
                 
+                // Handle image upload
+                $imagePath = null;
+                if ($request->hasFile("questions.{$index}.image")) {
+                    $image = $request->file("questions.{$index}.image");
+                    $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                    $imagePath = $image->storeAs('quiz_images', $imageName, 'public');
+                }
+                
                 $questionId = DB::table('teacher_quiz_questions')->insertGetId([
                     'quiz_id' => $quizId,
                     'question' => $questionData['question'],
+                    'image' => $imagePath,
                     'correct_answer' => $questionData['correct_answer'],
                     'points' => $questionData['points'],
                     'order_number' => $questionCount + 1,
@@ -219,7 +230,9 @@ class TeacherQuizController extends Controller
             'questions.*.correct_answer' => 'required|string|in:A,B,C,D,E',
             'questions.*.points' => 'required|integer|min:1|max:100',
             'questions.*.options' => 'required|array|min:2|max:5',
-            'questions.*.options.*' => 'required|string|max:200'
+            'questions.*.options.*' => 'required|string|max:200',
+            'questions.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'questions.*.existing_image' => 'nullable|string'
         ]);
 
         // Update quiz
@@ -241,6 +254,18 @@ class TeacherQuizController extends Controller
         $questionIds = DB::table('teacher_quiz_questions')
             ->where('quiz_id', $id)
             ->pluck('id');
+        
+        // Delete old images before deleting questions
+        $oldQuestions = DB::table('teacher_quiz_questions')
+            ->where('quiz_id', $id)
+            ->whereNotNull('image')
+            ->get();
+        
+        foreach ($oldQuestions as $oldQuestion) {
+            if ($oldQuestion->image && Storage::disk('public')->exists($oldQuestion->image)) {
+                Storage::disk('public')->delete($oldQuestion->image);
+            }
+        }
             
         DB::table('teacher_quiz_options')
             ->whereIn('question_id', $questionIds)
@@ -252,9 +277,21 @@ class TeacherQuizController extends Controller
 
         // Create new questions and options
         foreach ($request->questions as $index => $questionData) {
+            // Handle image upload
+            $imagePath = null;
+            if ($request->hasFile("questions.{$index}.image")) {
+                $image = $request->file("questions.{$index}.image");
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $imagePath = $image->storeAs('quiz_images', $imageName, 'public');
+            } elseif (isset($questionData['existing_image']) && !empty($questionData['existing_image'])) {
+                // Keep existing image if no new image uploaded
+                $imagePath = $questionData['existing_image'];
+            }
+            
             $questionId = DB::table('teacher_quiz_questions')->insertGetId([
                 'quiz_id' => $id,
                 'question' => $questionData['question'],
+                'image' => $imagePath,
                 'correct_answer' => $questionData['correct_answer'],
                 'points' => $questionData['points'],
                 'order_number' => $index + 1,
@@ -282,6 +319,19 @@ class TeacherQuizController extends Controller
 
     public function destroy($id)
     {
+        // Get questions with images
+        $questions = DB::table('teacher_quiz_questions')
+            ->where('quiz_id', $id)
+            ->whereNotNull('image')
+            ->get();
+        
+        // Delete images
+        foreach ($questions as $question) {
+            if ($question->image && Storage::disk('public')->exists($question->image)) {
+                Storage::disk('public')->delete($question->image);
+            }
+        }
+        
         // Delete options first
         $questionIds = DB::table('teacher_quiz_questions')
             ->where('quiz_id', $id)

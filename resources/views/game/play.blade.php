@@ -64,7 +64,11 @@
                                     
                                     <div class="question-content">
                                         <p class="question-text">{{ $question->question }}</p>
-                                        
+                                        @if($question->image)
+                                            <div class="mb-3">
+                                                <img src="{{ Storage::url($question->image) }}" alt="Gambar soal" class="img-fluid rounded" style="max-width: 100%; max-height: 400px;">
+                                            </div>
+                                        @endif
                                         <div class="options-container">
                                             @if(isset($allOptions[$question->id]))
                                                 @foreach($allOptions[$question->id] as $option)
@@ -121,15 +125,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const timerElement = document.getElementById('timer');
-            let currentQuestionIndex = 0;
-            const totalQuestions = {{ $questions->count() }};
+            var timerElement = document.getElementById('timer');
+            var currentQuestionIndex = 0;
+            var totalQuestions = parseInt('{{ $questions->count() }}');
             
             // Timer setup using quiz settings
-            let timeLimit = {{ $quiz->time_limit }} * 60; // minutes from quiz settings
+            var timeLimit = parseInt('{{ $quiz->time_limit }}') * 60;
             
-            let timeLeft = timeLimit;
-            let timerInterval;
+            var timeLeft = timeLimit;
+            var timerInterval;
 
             // Start timer
             function startTimer() {
@@ -147,9 +151,11 @@
 
             // Update timer display
             function updateTimerDisplay() {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                var minutes = Math.floor(timeLeft / 60);
+                var seconds = timeLeft % 60;
+                var minutesStr = minutes.toString().padStart(2, '0');
+                var secondsStr = seconds.toString().padStart(2, '0');
+                timerElement.textContent = minutesStr + ':' + secondsStr;
                 
                 // Change color when time is running low
                 if (timeLeft <= 60) {
@@ -186,19 +192,21 @@
 
             // Check if current question is answered
             function isCurrentQuestionAnswered() {
-                const currentQuestion = document.querySelector(`[data-question="${currentQuestionIndex + 1}"]`);
+                var questionSelector = '[data-question="' + (currentQuestionIndex + 1) + '"]';
+                var currentQuestion = document.querySelector(questionSelector);
                 if (!currentQuestion) return false;
                 
-                const selectedAnswer = currentQuestion.querySelector('input[type="radio"]:checked');
+                var selectedAnswer = currentQuestion.querySelector('input[type="radio"]:checked');
                 return selectedAnswer !== null;
             }
 
             // Show validation message
             function showValidationMessage() {
-                const validationMsg = document.getElementById(`validationMsg${currentQuestionIndex + 1}`);
+                var validationMsgId = 'validationMsg' + (currentQuestionIndex + 1);
+                var validationMsg = document.getElementById(validationMsgId);
                 if (validationMsg) {
                     validationMsg.style.display = 'block';
-                    setTimeout(() => {
+                    setTimeout(function() {
                         validationMsg.style.display = 'none';
                     }, 3000);
                 }
@@ -206,9 +214,10 @@
 
             // Update navigation buttons based on current question
             function updateNavigationButtons() {
-                const isAnswered = isCurrentQuestionAnswered();
-                const nextBtn = document.getElementById(`nextBtn${currentQuestionIndex + 1}`);
-                const submitBtn = document.getElementById('submitBtn');
+                var isAnswered = isCurrentQuestionAnswered();
+                var nextBtnId = 'nextBtn' + (currentQuestionIndex + 1);
+                var nextBtn = document.getElementById(nextBtnId);
+                var submitBtn = document.getElementById('submitBtn');
                 
                 if (nextBtn) {
                     nextBtn.disabled = !isAnswered;
@@ -220,30 +229,34 @@
 
             function showQuestion(index) {
                 // Hide all questions
-                document.querySelectorAll('.question-card').forEach(card => {
-                    card.classList.remove('active');
-                });
+                var questionCards = document.querySelectorAll('.question-card');
+                for (var i = 0; i < questionCards.length; i++) {
+                    questionCards[i].classList.remove('active');
+                }
                 
                 // Show current question
-                const currentCard = document.querySelector(`[data-question="${index + 1}"]`);
+                var questionSelector = '[data-question="' + (index + 1) + '"]';
+                var currentCard = document.querySelector(questionSelector);
                 if (currentCard) {
                     currentCard.classList.add('active');
                 }
                 
                 // Update progress bar
-                const progress = ((index + 1) / totalQuestions) * 100;
+                var progress = ((index + 1) / totalQuestions) * 100;
                 document.getElementById('progressBar').style.width = progress + '%';
                 document.getElementById('currentQuestion').textContent = index + 1;
             }
 
             // Add visual feedback for option selection
-            document.querySelectorAll('.option-input').forEach(input => {
-                input.addEventListener('change', function() {
+            var optionInputs = document.querySelectorAll('.option-input');
+            for (var i = 0; i < optionInputs.length; i++) {
+                optionInputs[i].addEventListener('change', function() {
                     // Remove active class from all options in current question
-                    const currentQuestion = this.closest('.question-card');
-                    currentQuestion.querySelectorAll('.option-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
+                    var currentQuestion = this.closest('.question-card');
+                    var optionItems = currentQuestion.querySelectorAll('.option-item');
+                    for (var j = 0; j < optionItems.length; j++) {
+                        optionItems[j].classList.remove('active');
+                    }
                     
                     // Add active class to selected option
                     this.closest('.option-item').classList.add('active');
@@ -251,7 +264,7 @@
                     // Update navigation buttons when answer is selected
                     updateNavigationButtons();
                 });
-            });
+            }
         });
     </script>
 </body>
