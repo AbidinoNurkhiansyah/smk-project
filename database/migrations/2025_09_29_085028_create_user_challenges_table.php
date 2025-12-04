@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_challenges', function (Blueprint $table) {
             $table->integer('user_challenges_id')->primary();
-            $table->integer('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->integer('challenge_id');
             $table->integer('option_id');
             $table->boolean('is_correct')->nullable();

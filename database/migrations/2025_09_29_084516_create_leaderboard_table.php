@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('leaderboard', function (Blueprint $table) {
             $table->integer('leaderboard_id')->primary();
-            $table->integer('user_id');
-            $table->integer('point_id');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('point_id');
             $table->integer('ranking');
             $table->integer('class_id');
             $table->enum('periode', ['weekly','monthly','semester']);

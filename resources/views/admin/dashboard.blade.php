@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -16,25 +17,32 @@
         </div>
         <nav class="sidebar-nav">
             <a href="{{ route('admin.dashboard') }}" class="nav-link active">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
             </a>
             <a href="{{ route('admin.videos') }}" class="nav-link">
-                <i class="fas fa-video"></i> Kelola Video
+                <i class="fas fa-video"></i>
+                <span>Kelola Video</span>
             </a>
             <a href="{{ route('admin.teacher-quiz') }}" class="nav-link">
-                <i class="fas fa-chalkboard-teacher"></i> Kelola Quiz
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Kelola Quiz</span>
             </a>
             <a href="{{ route('admin.students') }}" class="nav-link">
-                <i class="fas fa-users"></i> Data Siswa
+                <i class="fas fa-users"></i>
+                <span>Data Siswa</span>
             </a>
             <a href="{{ route('admin.analytics') }}" class="nav-link">
-                <i class="fas fa-chart-bar"></i> Analitik
+                <i class="fas fa-chart-bar"></i>
+                <span>Clustering</span>
             </a>
             <a href="{{ route('admin.quiz-analytics') }}" class="nav-link">
-                <i class="fas fa-chart-line"></i> Analitik Kuis
+                <i class="fas fa-chart-line"></i>
+                <span>Analitik Kuis</span>
             </a>
             <a href="{{ route('admin.leaderboard') }}" class="nav-link">
-                <i class="fas fa-trophy"></i> Leaderboard
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
             </a>
         </nav>
     </div>
@@ -146,66 +154,235 @@
                 </div>
             </div>
 
-            <!-- Recent Activities -->
-            <div class="row">
-                <div class="col-md-6">
+            <!-- Charts -->
+            <div class="row mb-4">
+                <div class="col-md-8">
                     <div class="card">
                         <div class="card-header">
-                            <h5><i class="fas fa-video"></i> Video Terbaru</h5>
+                            <h5><i class="fas fa-chart-bar"></i> Performa per Kelas</h5>
                         </div>
                         <div class="card-body">
-                            @if($recentVideos->count() > 0)
-                                @foreach($recentVideos as $video)
-                                    <div class="activity-item">
-                                        <div class="activity-icon">
-                                            <i class="fas fa-play-circle"></i>
-                                        </div>
-                                        <div class="activity-content">
-                                            <h6>{{ $video->judul }}</h6>
-                                            <p class="text-muted">Video Pembelajaran</p>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <p class="text-muted">Belum ada video</p>
-                            @endif
+                            <canvas id="performanceChart" style="max-height: 400px;"></canvas>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="card">
                         <div class="card-header">
-                            <h5><i class="fas fa-chart-line"></i> Progress Terbaru</h5>
+                            <h5><i class="fas fa-chart-pie"></i> Clustering Siswa</h5>
                         </div>
                         <div class="card-body">
-                            @if($recentProgress->count() > 0)
-                                @foreach($recentProgress as $progress)
-                                    <div class="activity-item">
-                                        <div class="activity-icon">
-                                            <i class="fas fa-user"></i>
+                            <canvas id="clusteringChart" style="max-height: 400px;"></canvas>
+                            <div class="mt-3 text-center">
+                                <div class="d-flex justify-content-around">
+                                    <div>
+                                        <span class="badge bg-success me-2">●</span>
+                                        <span>Siswa Rajin: {{ $clusteringData['rajin'] }}</span>
                                         </div>
-                                        <div class="activity-content">
-                                            <h6>{{ $progress->user_name }}</h6>
-                                            <p class="text-muted">{{ $progress->judul }} - {{ $progress->progress }}%</p>
-                                        </div>
+                                    <div>
+                                        <span class="badge bg-warning me-2">●</span>
+                                        <span>Butuh Bimbingan: {{ $clusteringData['butuh_bimbingan'] }}</span>
                                     </div>
-                                @endforeach
-                            @else
-                                <p class="text-muted">Belum ada progress</p>
-                            @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Sidebar toggle
-        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
+        // Sidebar toggle functionality
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        // Function to check if mobile
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
+        // Toggle sidebar
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (isMobile()) {
+                    // Mobile: show/hide sidebar with overlay
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                    // Prevent body scroll when sidebar is open
+                    if (sidebar.classList.contains('show')) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                } else {
+                    // Desktop: collapse/expand sidebar
+                    sidebar.classList.toggle('collapsed');
+                }
+            });
+        }
+
+        // Close sidebar when clicking overlay (mobile only)
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                if (isMobile()) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Close sidebar when clicking outside (mobile only)
+        document.addEventListener('click', function(e) {
+            if (isMobile() && sidebar && sidebarOverlay) {
+                const isClickInsideSidebar = sidebar.contains(e.target);
+                const isClickOnToggle = sidebarToggle && sidebarToggle.contains(e.target);
+                
+                if (!isClickInsideSidebar && !isClickOnToggle && sidebar.classList.contains('show')) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            }
         });
+
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                // Reset sidebar state on breakpoint change
+                if (!isMobile()) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            }, 250);
+        });
+
+        // Close sidebar on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebar && sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Performance Bar Chart
+        const performanceCtx = document.getElementById('performanceChart');
+        if (performanceCtx) {
+            const performanceData = @json($performanceData);
+            const labels = performanceData.map(item => item.class_name);
+            const scores = performanceData.map(item => {
+                const score = parseFloat(item.avg_score) || 0;
+                // Only show score if there's actual data (students who took quizzes)
+                return score > 0 ? parseFloat(score.toFixed(2)) : 0;
+            });
+
+            new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Rata-rata Skor (%)',
+                        data: scores,
+                        backgroundColor: scores.map(score => score > 0 ? 'rgba(220, 38, 38, 0.8)' : 'rgba(200, 200, 200, 0.3)'),
+                        borderColor: scores.map(score => score > 0 ? 'rgba(220, 38, 38, 1)' : 'rgba(200, 200, 200, 0.5)'),
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const score = context.parsed.y;
+                                    if (score === 0) {
+                                        return 'Belum ada data quiz';
+                                    }
+                                    return 'Rata-rata Skor: ' + score + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Clustering Donut Chart
+        const clusteringCtx = document.getElementById('clusteringChart');
+        if (clusteringCtx) {
+            const clusteringData = @json($clusteringData);
+            const rajin = clusteringData.rajin || 0;
+            const butuhBimbingan = clusteringData.butuh_bimbingan || 0;
+            const total = clusteringData.total || 1;
+
+            new Chart(clusteringCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Siswa Rajin', 'Butuh Bimbingan'],
+                    datasets: [{
+                        data: [rajin, butuhBimbingan],
+                        backgroundColor: [
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(255, 193, 7, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 193, 7, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return label + ': ' + value + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>

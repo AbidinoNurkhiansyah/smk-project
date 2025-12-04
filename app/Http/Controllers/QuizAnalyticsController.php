@@ -164,10 +164,11 @@ class QuizAnalyticsController extends Controller
                     'tqa.answered_at'
                 )
                 ->orderBy('tqq.id')
-                ->get();
+                ->get()
+                ->keyBy('question_id');
 
-            // Get all questions for this quiz to show all options
-            $questions = DB::table('teacher_quiz_questions as tqq')
+            // Get all questions with their options for this quiz
+            $questionsData = DB::table('teacher_quiz_questions as tqq')
                 ->where('tqq.quiz_id', $quizId)
                 ->select(
                     'tqq.id as question_id',
@@ -177,8 +178,30 @@ class QuizAnalyticsController extends Controller
                 ->orderBy('tqq.id')
                 ->get();
 
+            // Get all options for these questions
+            $questionIds = $questionsData->pluck('question_id')->toArray();
+            $options = DB::table('teacher_quiz_options')
+                ->whereIn('question_id', $questionIds)
+                ->orderBy('question_id')
+                ->orderBy('option_label')
+                ->get();
+
+            // Group questions with their options
+            $questions = $questionsData->mapWithKeys(function ($question) use ($options) {
+                $questionOptions = $options->where('question_id', $question->question_id)
+                    ->map(function ($option) use ($question) {
+                        $option->is_correct = ($option->option_label === $question->correct_answer);
+                        return $option;
+                    });
+                
+                return [$question->question_id => collect([
+                    'question' => $question,
+                    'options' => $questionOptions
+                ])];
+            });
+
             // Calculate score
-            $totalQuestions = $questions->count();
+            $totalQuestions = $questionsData->count();
             $correctAnswers = $answers->where('is_selected_correct', 1)->count();
             $score = $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100, 2) : 0;
 

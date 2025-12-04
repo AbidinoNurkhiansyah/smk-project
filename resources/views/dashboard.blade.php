@@ -15,7 +15,7 @@
         <div class="header-content">
             <div class="logo-section">
                 <div class="logo-icon">
-                    <i class="fas fa-user-circle"></i>
+                    <img src="{{ asset('image/logo.png') }}" alt="MechaLearn Logo" style="width: 40px; height: 40px; object-fit: contain;">
                 </div>
                 <div class="logo-text">
                     <h1>MechaLearn</h1>
@@ -24,11 +24,29 @@
             </div>
             <div class="user-section">
                 <div class="user-info">
-                    <h3 class="user-name">{{ $user['name'] }}</h3>
-                    <div class="class-badge">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>{{ $user['class'] }}</span>
-                    </div>
+                    <a href="{{ route('profile') }}" style="text-decoration: none; display: flex; align-items: center; gap: 1rem;">
+                        @if(isset($user['profile_picture']) && $user['profile_picture'])
+                            <div class="user-profile-picture">
+                                <img src="{{ asset('storage/' . $user['profile_picture']) }}?v={{ time() }}" alt="Foto Profil" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="user-profile-fallback" style="display: none;">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                            </div>
+                        @else
+                            <div class="user-profile-picture">
+                                <div class="user-profile-fallback">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                            </div>
+                        @endif
+                        <div class="user-details">
+                            <h3 class="user-name">{{ $user['name'] }}</h3>
+                            <div class="class-badge">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>{{ $user['class'] }}</span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
                 <div class="user-actions">
                     <button class="btn-icon home-btn" title="Kembali ke Beranda" data-url="{{ route('welcome') }}">
@@ -73,10 +91,6 @@
                     <i class="fas fa-book"></i>
                     Pembelajaran
                 </button>
-                <button class="tab-button">
-                    <i class="fas fa-users"></i>
-                    Leaderboard
-                </button>
             </div>
             <div class="tab-content">
                 <!-- Progress Overview -->
@@ -106,7 +120,7 @@
                     </a>
                     <a href="{{ route('game.index') }}" class="action-btn secondary">
                         <i class="fas fa-gamepad"></i>
-                        <span>Main Game</span>
+                        <span>Quiz</span>
                     </a>
                     <a href="{{ route('game.leaderboard') }}" class="action-btn tertiary">
                         <i class="fas fa-trophy"></i>
@@ -120,11 +134,32 @@
                     <div class="video-card">
                         <div class="video-thumbnail">
                             <i class="fas fa-{{ $video['thumbnail'] ?? 'play' }}"></i>
-                            <div class="video-category">{{ $video['category'] ?? 'General' }}</div>
-                            <div class="video-duration">{{ $video['duration'] ?? '00:00' }}</div>
-                            @if($video['is_completed'])
-                            <div class="video-completed">✓</div>
-                            @endif
+                            <div class="video-overlay-info">
+                                <div class="video-category">
+                                    <i class="fas fa-tag"></i>
+                                    <span>{{ $video['category'] ?? 'General' }}</span>
+                                </div>
+                                <div class="video-duration">
+                                    <i class="fas fa-clock"></i>
+                                    <span>{{ $video['duration'] ?? '00:00' }}</span>
+                                </div>
+                                @if($video['is_completed'])
+                                <div class="video-completed">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Selesai</span>
+                                </div>
+                                @elseif($video['progress'] > 0)
+                                <div class="video-in-progress">
+                                    <i class="fas fa-play-circle"></i>
+                                    <span>Sedang Ditonton</span>
+                                </div>
+                                @else
+                                <div class="video-new">
+                                    <i class="fas fa-star"></i>
+                                    <span>Baru</span>
+                                </div>
+                                @endif
+                            </div>
                         </div>
                         <div class="video-content">
                             <h4 class="video-title">{{ $video['title'] }}</h4>

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('points_per_question')->default(10);
             $table->string('difficulty')->default('mudah');
             $table->boolean('is_active')->default(true);
-            $table->integer('created_by'); // user_id yang membuat
+            $table->unsignedBigInteger('created_by'); // user_id yang membuat
             $table->timestamps();
             
             $table->foreign('class_id')->references('class_id')->on('classes');

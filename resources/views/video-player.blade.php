@@ -218,6 +218,17 @@
             cursor: pointer;
         }
         
+        .btn-action:disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+        
+        .btn-action:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
         .btn-primary-action {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -303,11 +314,39 @@
             </div>
             
             <div class="video-wrapper">
-                <iframe 
-                    src="{{ $video->video_url }}" 
-                    allowfullscreen
-                    id="videoPlayer">
-                </iframe>
+                @php
+                    $isYouTube = false;
+                    $youtubeVideoId = null;
+                    if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $embedUrl)) {
+                        // It's a YouTube video ID
+                        $isYouTube = true;
+                        $youtubeVideoId = $embedUrl;
+                    }
+                @endphp
+                
+                @if($isYouTube)
+                    <div id="videoPlayer"></div>
+                @else
+                    <iframe 
+                        src="{{ $embedUrl }}" 
+                        allowfullscreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        id="videoPlayer"
+                        onerror="handleVideoError()">
+                    </iframe>
+                @endif
+                <div id="videoError" style="display: none; text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 10px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ffc107; margin-bottom: 1rem;"></i>
+                    <h3 style="color: #333; margin-bottom: 0.5rem;">Video Tidak Dapat Diputar</h3>
+                    <p style="color: #666; margin-bottom: 1.5rem;">
+                        Video ini mungkin bersifat private atau tidak dapat diakses melalui embed.<br>
+                        Silakan klik tombol di bawah untuk membuka video di tab baru.
+                    </p>
+                    <a href="{{ $video->video_url }}" target="_blank" class="btn-action btn-primary-action" style="text-decoration: none; display: inline-block;">
+                        <i class="fas fa-external-link-alt"></i>
+                        Buka Video di Tab Baru
+                    </a>
+                </div>
             </div>
             
             <div class="video-info">
@@ -330,7 +369,8 @@
                         <i class="fas fa-arrow-left"></i>
                         Kembali ke Video
                     </a>
-                    <button onclick="markAsCompleted()" class="btn-action btn-primary-action">
+                    <button id="btnMarkCompleted" onclick="markAsCompleted()" class="btn-action btn-primary-action" 
+                            @if($progressPercentage < 100) disabled style="opacity: 0.5; cursor: not-allowed;" @endif>
                         <i class="fas fa-check"></i>
                         Tandai Selesai
                     </button>
@@ -364,48 +404,311 @@
         });
 
         // Video progress tracking
-        let progressUpdateInterval;
+        let progressUpdateInterval = null;
         let lastProgress = {{ $progressPercentage }};
+        let videoStarted = false;
+        let videoPaused = false;
+        let lastVideoTime = 0;
+        let totalWatchedTime = 0;
+        let videoDuration = 0;
+        let isYouTube = false;
+        let isGoogleDrive = false;
+        let youtubePlayer = null;
+
+        // Check video source
+        const embedUrl = '{{ $embedUrl }}';
+        @php
+            $isYouTubeJS = isset($isYouTube) && $isYouTube;
+            $youtubeVideoIdJS = isset($youtubeVideoId) ? $youtubeVideoId : '';
+            $isGoogleDriveJS = strpos($embedUrl, 'drive.google.com') !== false;
+        @endphp
+        
+        @if($isYouTubeJS)
+            isYouTube = true;
+            const youtubeVideoId = '{{ $youtubeVideoIdJS }}';
+        @endif
+        
+        @if($isGoogleDriveJS)
+            isGoogleDrive = true;
+        @endif
+
+        // Load YouTube IFrame API if needed
+        if (isYouTube) {
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        // YouTube IFrame API callback
+        function onYouTubeIframeAPIReady() {
+            if (isYouTube && typeof youtubeVideoId !== 'undefined') {
+                youtubePlayer = new YT.Player('videoPlayer', {
+                    videoId: youtubeVideoId,
+                    playerVars: {
+                        'rel': 0,
+                        'modestbranding': 1,
+                        'playsinline': 1
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+        }
+
+        // Make onYouTubeIframeAPIReady global
+        window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+        function onPlayerReady(event) {
+            videoDuration = event.target.getDuration();
+            console.log('Video duration:', videoDuration, 'seconds');
+        }
+
+        function onPlayerStateChange(event) {
+            // YT.PlayerState: -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (cued)
+            const state = event.data;
+            
+            if (state === YT.PlayerState.PLAYING) {
+                // Video started playing
+                if (!videoStarted) {
+                    videoStarted = true;
+                    videoPaused = false;
+                    console.log('Video started playing');
+                    startProgressTracking();
+                } else if (videoPaused) {
+                    // Video resumed from pause
+                    videoPaused = false;
+                    console.log('Video resumed');
+                    startProgressTracking();
+                }
+            } else if (state === YT.PlayerState.PAUSED) {
+                // Video paused
+                videoPaused = true;
+                stopProgressTracking();
+                console.log('Video paused');
+            } else if (state === YT.PlayerState.ENDED) {
+                // Video ended
+                videoStarted = false;
+                videoPaused = false;
+                stopProgressTracking();
+                // Force update to 100% when video ends
+                lastProgress = 100;
+                updateProgress(100);
+                console.log('Video ended - Progress set to 100%');
+            } else if (state === YT.PlayerState.BUFFERING) {
+                // Video buffering - don't track progress
+                console.log('Video buffering');
+            }
+        }
+
+        // For Google Drive, use postMessage
+        if (isGoogleDrive) {
+            window.addEventListener('message', function(event) {
+                if (event.origin !== 'https://drive.google.com') return;
+                
+                const data = event.data;
+                if (data && typeof data === 'object') {
+                    // Handle Google Drive video events
+                    if (data.type === 'video-progress') {
+                        if (!videoStarted && data.playing) {
+                            videoStarted = true;
+                            videoPaused = false;
+                            startProgressTracking();
+                        } else if (videoStarted && !data.playing) {
+                            videoPaused = true;
+                            stopProgressTracking();
+                        }
+                    }
+                }
+            });
+        }
 
         function startProgressTracking() {
+            if (progressUpdateInterval) {
+                clearInterval(progressUpdateInterval);
+            }
+
             progressUpdateInterval = setInterval(function() {
-                // Simulate progress tracking (in real implementation, you'd track actual video time)
-                // For now, we'll just update every 10 seconds
-                updateProgress(Math.min(lastProgress + 5, 100));
-            }, 10000);
+                if (!videoStarted || videoPaused) {
+                    return;
+                }
+
+                let currentTime = 0;
+                let duration = 0;
+
+                if (isYouTube && youtubePlayer) {
+                    try {
+                        currentTime = youtubePlayer.getCurrentTime();
+                        duration = youtubePlayer.getDuration();
+                        
+                        // Check if user skipped (jumped forward more than 10 seconds)
+                        if (currentTime - lastVideoTime > 10) {
+                            console.log('Video skipped - stopping progress tracking');
+                            stopProgressTracking();
+                            return;
+                        }
+                        
+                        lastVideoTime = currentTime;
+                        
+                        if (duration > 0) {
+                            const progress = Math.round((currentTime / duration) * 100);
+                            updateProgress(progress);
+                        }
+                    } catch (e) {
+                        console.error('Error getting YouTube video time:', e);
+                    }
+                } else if (isGoogleDrive) {
+                    // For Google Drive, we can't directly access video time
+                    // So we'll track based on time watched
+                    totalWatchedTime += 1; // Increment by 1 second
+                    if (videoDuration > 0) {
+                        const progress = Math.round((totalWatchedTime / videoDuration) * 100);
+                        updateProgress(Math.min(progress, 100));
+                    }
+                }
+            }, 1000); // Update every second
+        }
+
+        function stopProgressTracking() {
+            if (progressUpdateInterval) {
+                clearInterval(progressUpdateInterval);
+                progressUpdateInterval = null;
+            }
         }
 
         function updateProgress(progress) {
-            if (progress !== lastProgress) {
+            // Ensure progress is between 0 and 100
+            progress = Math.max(0, Math.min(100, progress));
+            
+            // Only update if progress actually changed
+            if (Math.abs(progress - lastProgress) >= 1) {
                 lastProgress = progress;
                 
                 // Update UI
-                document.querySelector('.progress-percentage').textContent = progress + '%';
-                document.querySelector('.progress-bar').style.width = progress + '%';
+                const progressElement = document.querySelector('.progress-percentage');
+                const progressBar = document.querySelector('.progress-bar');
+                const btnMarkCompleted = document.getElementById('btnMarkCompleted');
+                
+                if (progressElement) {
+                    progressElement.textContent = progress + '%';
+                }
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                
+                // Enable/disable "Tandai Selesai" button based on progress
+                if (btnMarkCompleted) {
+                    if (progress >= 100) {
+                        // Video selesai - enable button
+                        btnMarkCompleted.disabled = false;
+                        btnMarkCompleted.style.opacity = '1';
+                        btnMarkCompleted.style.cursor = 'pointer';
+                        btnMarkCompleted.title = 'Klik untuk menandai video sebagai selesai';
+                    } else {
+                        // Video belum selesai - disable button
+                        btnMarkCompleted.disabled = true;
+                        btnMarkCompleted.style.opacity = '0.5';
+                        btnMarkCompleted.style.cursor = 'not-allowed';
+                        btnMarkCompleted.title = 'Video harus ditonton sampai selesai (100%) untuk bisa ditandai selesai';
+                    }
+                }
                 
                 // Send to server
                 fetch('{{ route("video.progress") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({
                         video_id: {{ $video->video_id }},
                         progress: progress
                     })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Progress saved:', data);
+                    if (data.success && progress >= 100) {
+                        console.log('Video marked as completed in database');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating progress:', error);
                 });
             }
         }
 
         function markAsCompleted() {
-            updateProgress(100);
-            alert('Video berhasil ditandai sebagai selesai!');
+            // Check if progress is already 100%
+            if (lastProgress < 100) {
+                alert('Video harus ditonton sampai selesai (100%) sebelum bisa ditandai selesai.\n\nProgress saat ini: ' + lastProgress + '%');
+                return;
+            }
+            
+            // Double check - ensure progress is 100%
+            if (lastProgress >= 100) {
+                stopProgressTracking();
+                updateProgress(100);
+                alert('Video berhasil ditandai sebagai selesai!');
+                
+                // Disable button after marking as completed
+                const btnMarkCompleted = document.getElementById('btnMarkCompleted');
+                if (btnMarkCompleted) {
+                    btnMarkCompleted.disabled = true;
+                    btnMarkCompleted.style.opacity = '0.7';
+                    btnMarkCompleted.innerHTML = '<i class="fas fa-check-circle"></i> Sudah Selesai';
+                }
+            } else {
+                alert('Video belum selesai ditonton. Progress saat ini: ' + lastProgress + '%');
+            }
         }
 
-        // Start progress tracking when page loads
+        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            startProgressTracking();
+            // Don't start tracking automatically - wait for video to play
+            console.log('Video player loaded. Waiting for video to start...');
+            
+            // Initialize button state based on current progress
+            const btnMarkCompleted = document.getElementById('btnMarkCompleted');
+            if (btnMarkCompleted) {
+                if (lastProgress >= 100) {
+                    btnMarkCompleted.disabled = false;
+                    btnMarkCompleted.style.opacity = '1';
+                    btnMarkCompleted.style.cursor = 'pointer';
+                } else {
+                    btnMarkCompleted.disabled = true;
+                    btnMarkCompleted.style.opacity = '0.5';
+                    btnMarkCompleted.style.cursor = 'not-allowed';
+                    btnMarkCompleted.title = 'Video harus ditonton sampai selesai (100%) untuk bisa ditandai selesai';
+                }
+            }
+            
+            // For non-YouTube videos, try to detect play events
+            if (!isYouTube) {
+                const iframe = document.getElementById('videoPlayer');
+                if (iframe) {
+                    // Try to detect when video starts (limited by cross-origin restrictions)
+                    // We'll use a fallback: start tracking after user interacts with page
+                    let userInteracted = false;
+                    
+                    document.addEventListener('click', function() {
+                        if (!userInteracted) {
+                            userInteracted = true;
+                            // Small delay to allow video to start
+                            setTimeout(function() {
+                                if (!videoStarted) {
+                                    videoStarted = true;
+                                    videoPaused = false;
+                                    startProgressTracking();
+                                }
+                            }, 2000);
+                        }
+                    }, { once: true });
+                }
+            }
         });
 
         // Clean up when page unloads
@@ -413,6 +716,68 @@
             if (progressUpdateInterval) {
                 clearInterval(progressUpdateInterval);
             }
+        });
+
+        // Handle video error
+        function handleVideoError() {
+            const iframe = document.getElementById('videoPlayer');
+            const errorDiv = document.getElementById('videoError');
+            
+            // Check if iframe loaded successfully
+            setTimeout(function() {
+                try {
+                    // Try to access iframe content (will fail if video is private)
+                    iframe.contentWindow.document;
+                } catch (e) {
+                    // If we can't access, show error message
+                    iframe.style.display = 'none';
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                    }
+                }
+            }, 2000);
+        }
+
+        // Listen for iframe load errors
+        document.getElementById('videoPlayer').addEventListener('load', function() {
+            // If iframe loads but shows error, check after a delay
+            setTimeout(function() {
+                const iframe = document.getElementById('videoPlayer');
+                try {
+                    // Try to check if video is actually playing
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const bodyText = iframeDoc.body.innerText || iframeDoc.body.textContent || '';
+                    
+                    // Check for common YouTube error messages
+                    if (bodyText.includes('private') || 
+                        bodyText.includes('unavailable') || 
+                        bodyText.includes('Video tidak tersedia') ||
+                        bodyText.includes('Video tidak dapat diputar')) {
+                        iframe.style.display = 'none';
+                        const errorDiv = document.getElementById('videoError');
+                        if (errorDiv) {
+                            errorDiv.style.display = 'block';
+                        }
+                    }
+                } catch (e) {
+                    // Cross-origin error is expected, but we can't verify
+                    // So we'll show a fallback option
+                    console.log('Cannot access iframe content (expected for cross-origin)');
+                }
+            }, 3000);
+        });
+
+        // Alternative: Show fallback button if video doesn't load
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const iframe = document.getElementById('videoPlayer');
+                const errorDiv = document.getElementById('videoError');
+                
+                // Check if iframe is visible and has content
+                if (iframe && iframe.offsetHeight === 0 && errorDiv) {
+                    errorDiv.style.display = 'block';
+                }
+            }, 5000);
         });
     </script>
 </body>

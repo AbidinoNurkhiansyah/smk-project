@@ -16,25 +16,32 @@
         </div>
         <nav class="sidebar-nav">
             <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
             </a>
             <a href="{{ route('admin.videos') }}" class="nav-link">
-                <i class="fas fa-video"></i> Kelola Video
+                <i class="fas fa-video"></i>
+                <span>Kelola Video</span>
             </a>
             <a href="{{ route('admin.teacher-quiz') }}" class="nav-link">
-                <i class="fas fa-question-circle"></i> Kelola Quiz
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Kelola Quiz</span>
             </a>
             <a href="{{ route('admin.students') }}" class="nav-link active">
-                <i class="fas fa-users"></i> Data Siswa
+                <i class="fas fa-users"></i>
+                <span>Data Siswa</span>
             </a>
             <a href="{{ route('admin.analytics') }}" class="nav-link">
-                <i class="fas fa-chart-bar"></i> Analitik
+                <i class="fas fa-chart-bar"></i>
+                <span>Clustering</span>
             </a>
             <a href="{{ route('admin.quiz-analytics') }}" class="nav-link">
-                <i class="fas fa-chart-line"></i> Analitik Kuis
+                <i class="fas fa-chart-line"></i>
+                <span>Analitik Kuis</span>
             </a>
             <a href="{{ route('admin.leaderboard') }}" class="nav-link">
-                <i class="fas fa-trophy"></i> Leaderboard
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
             </a>
         </nav>
     </div>
@@ -166,11 +173,110 @@
         </div>
     </div>
 
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Sidebar toggle
-        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
+        // Sidebar toggle functionality
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        // Function to check if mobile
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
+        // Toggle sidebar
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (isMobile()) {
+                    // Mobile: show/hide sidebar with overlay
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                    // Prevent body scroll when sidebar is open
+                    if (sidebar.classList.contains('show')) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                } else {
+                    // Desktop: collapse/expand sidebar
+                    sidebar.classList.toggle('collapsed');
+                }
+            });
+        }
+
+        // Close sidebar when clicking overlay (mobile only)
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                if (isMobile()) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Close sidebar when clicking outside (mobile only)
+        document.addEventListener('click', function(e) {
+            if (isMobile() && sidebar && sidebarOverlay) {
+                const isClickInsideSidebar = sidebar.contains(e.target);
+                const isClickOnToggle = sidebarToggle && sidebarToggle.contains(e.target);
+                
+                if (!isClickInsideSidebar && !isClickOnToggle && sidebar.classList.contains('show')) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            }
+        });
+
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                // Reset sidebar state on breakpoint change
+                if (!isMobile()) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            }, 250);
+        });
+
+        // Close sidebar on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebar && sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const table = document.getElementById('studentsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const name = row.cells[1].textContent.toLowerCase();
+                const email = row.cells[2].textContent.toLowerCase();
+                const className = row.cells[3].textContent.toLowerCase();
+
+                if (name.includes(searchTerm) || email.includes(searchTerm) || className.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
         });
 
         // Search functionality

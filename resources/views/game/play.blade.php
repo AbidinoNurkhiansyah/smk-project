@@ -2,11 +2,12 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Kuis Teknik Sepeda Motor - Kelas 10</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/game.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="game-play-container">
@@ -14,18 +15,18 @@
         <header class="game-play-header">
             <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
                         <a href="{{ route('game.index') }}" class="btn btn-outline-light">
-                            <i class="fas fa-arrow-left"></i> Kembali
+                            <i class="fas fa-arrow-left"></i> <span class="d-none d-sm-inline">Kembali</span>
                         </a>
                     </div>
-                    <div class="col-md-6 text-end">
-                        <div class="game-info">
+                    <div class="col-12 col-md-6 text-md-end">
+                        <div class="game-info d-flex flex-wrap gap-2 justify-content-center justify-content-md-end">
                             <span class="points-badge">
-                                <i class="fas fa-star"></i> {{ $quiz->total_questions * $quiz->points_per_question }} Poin
+                                <i class="fas fa-star"></i> <span class="d-none d-sm-inline">{{ $quiz->total_questions * $quiz->points_per_question }} Poin</span><span class="d-sm-none">{{ $quiz->total_questions * $quiz->points_per_question }}</span>
                             </span>
                             <span class="difficulty-badge">
-                                <i class="fas fa-graduation-cap"></i> Kelas {{ $quiz->class_id }} - {{ ucfirst($quiz->difficulty) }} ({{ $quiz->total_questions }} Soal)
+                                <i class="fas fa-graduation-cap"></i> <span class="d-none d-md-inline">Kelas {{ $quiz->class_id }} - {{ ucfirst($quiz->difficulty) }} ({{ $quiz->total_questions }} Soal)</span><span class="d-md-none">{{ $quiz->class_id }} - {{ ucfirst($quiz->difficulty) }}</span>
                             </span>
                         </div>
                     </div>
@@ -41,7 +42,7 @@
                         <!-- Progress Bar -->
                         <div class="quiz-progress mb-4">
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: 0%" id="progressBar"></div>
+                                <div class="progress-bar" role="progressbar" style="width: 0%" id="progressBar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <div class="progress-text text-center mt-2">
                                 <span id="currentQuestion">1</span> dari {{ $questions->count() }} soal
@@ -55,18 +56,18 @@
                             @foreach($questions as $index => $question)
                                 <div class="question-card {{ $index === 0 ? 'active' : '' }}" data-question="{{ $index + 1 }}">
                                     <div class="question-header">
-                                        <h3>Soal {{ $index + 1 }}</h3>
+                                        <h3 class="question-number">Soal {{ $index + 1 }}</h3>
                                         <div class="question-timer">
                                             <i class="fas fa-clock"></i>
-                                            <span id="timer">{{ $quiz->time_limit }}:00</span>
+                                            <span class="timer-display">{{ $quiz->time_limit }}:00</span>
                                         </div>
                                     </div>
                                     
                                     <div class="question-content">
                                         <p class="question-text">{{ $question->question }}</p>
                                         @if($question->image)
-                                            <div class="mb-3">
-                                                <img src="{{ Storage::url($question->image) }}" alt="Gambar soal" class="img-fluid rounded" style="max-width: 100%; max-height: 400px;">
+                                            <div class="question-image-wrapper">
+                                                <img src="{{ Storage::url($question->image) }}" alt="Gambar soal" class="question-image">
                                             </div>
                                         @endif
                                         <div class="options-container">
@@ -89,24 +90,26 @@
                                     </div>
                                     
                                     <div class="question-actions">
-                                        @if($index > 0)
-                                            <button type="button" class="btn btn-outline-primary" onclick="previousQuestion()">
-                                                <i class="fas fa-arrow-left"></i> Sebelumnya
-                                            </button>
-                                        @endif
-                                        
-                                        @if($index < $questions->count() - 1)
-                                            <button type="button" class="btn btn-primary" onclick="nextQuestion()" id="nextBtn{{ $index + 1 }}" disabled>
-                                                Selanjutnya <i class="fas fa-arrow-right"></i>
-                                            </button>
-                                        @else
-                                            <button type="submit" class="btn btn-success" id="submitBtn" disabled>
-                                                <i class="fas fa-check"></i> Selesai Quiz
-                                            </button>
-                                        @endif
+                                        <div class="d-flex flex-column flex-sm-row gap-2 w-100">
+                                            @if($index > 0)
+                                                <button type="button" class="btn btn-outline-primary flex-fill" onclick="previousQuestion()">
+                                                    <i class="fas fa-arrow-left"></i> <span class="d-none d-sm-inline">Sebelumnya</span>
+                                                </button>
+                                            @endif
+                                            
+                                            @if($index < $questions->count() - 1)
+                                                <button type="button" class="btn btn-primary flex-fill" onclick="nextQuestion()" id="nextBtn{{ $index + 1 }}" disabled>
+                                                    <span class="d-none d-sm-inline">Selanjutnya</span> <i class="fas fa-arrow-right"></i>
+                                                </button>
+                                            @else
+                                                <button type="submit" class="btn btn-success flex-fill" id="submitBtn" disabled>
+                                                    <i class="fas fa-check"></i> <span class="d-none d-sm-inline">Selesai Quiz</span><span class="d-sm-none">Selesai</span>
+                                                </button>
+                                            @endif
+                                        </div>
                                         
                                         <!-- Answer validation message -->
-                                        <div class="answer-validation mt-2" id="validationMsg{{ $index + 1 }}" style="display: none;">
+                                        <div class="answer-validation mt-2 text-center" id="validationMsg{{ $index + 1 }}" style="display: none;">
                                             <small class="text-danger">
                                                 <i class="fas fa-exclamation-triangle"></i> 
                                                 Silakan pilih jawaban terlebih dahulu!
@@ -122,50 +125,147 @@
         </main>
     </div>
 
+    <!-- Time Up Modal -->
+    <div class="time-up-modal" id="timeUpModal">
+        <div class="time-up-modal-overlay"></div>
+        <div class="time-up-modal-content">
+            <div class="time-up-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h2 class="time-up-title">Waktu Habis!</h2>
+            <p class="time-up-message">Quiz akan otomatis disubmit.</p>
+            <div class="time-up-spinner">
+                <div class="spinner-border text-danger" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var timerElement = document.getElementById('timer');
             var currentQuestionIndex = 0;
             var totalQuestions = parseInt('{{ $questions->count() }}');
+            var quizId = parseInt('{{ $quiz->id }}');
             
-            // Timer setup using quiz settings
-            var timeLimit = parseInt('{{ $quiz->time_limit }}') * 60;
-            
-            var timeLeft = timeLimit;
+            // Timer variables
+            var timeLeft = 0;
             var timerInterval;
+            var isTimerRunning = false;
+            var serverEndTime = 0;
+            var clientStartTime = Date.now();
+            var serverStartTime = 0;
+            var timeOffset = 0; // Difference between server and client time
+
+            // Get all timer display elements
+            function getTimerElements() {
+                return document.querySelectorAll('.timer-display');
+            }
+
+            // Sync with server time (Indonesia timezone)
+            function syncWithServerTime() {
+                fetch('/game/time/' + quizId, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error syncing time:', data.error);
+                        return;
+                    }
+                    
+                    // Calculate time offset between server and client
+                    serverEndTime = data.end_time * 1000; // Convert to milliseconds
+                    serverStartTime = data.start_time * 1000;
+                    var serverCurrentTime = data.server_time * 1000;
+                    clientStartTime = Date.now();
+                    timeOffset = serverCurrentTime - clientStartTime;
+                    
+                    // Calculate remaining time based on server time
+                    calculateRemainingTime();
+                    
+                    // Start timer if not already running
+                    if (!isTimerRunning && timeLeft > 0) {
+                        startTimer();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching server time:', error);
+                });
+            }
+
+            // Calculate remaining time based on server time
+            function calculateRemainingTime() {
+                var currentClientTime = Date.now();
+                var currentServerTime = currentClientTime + timeOffset;
+                var remaining = Math.max(0, Math.floor((serverEndTime - currentServerTime) / 1000));
+                timeLeft = remaining;
+            }
 
             // Start timer
             function startTimer() {
+                // Clear existing timer if any
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                }
+                
+                // Only start if time is still available
+                if (timeLeft <= 0) {
+                    return;
+                }
+                
+                isTimerRunning = true;
                 timerInterval = setInterval(function() {
-                    timeLeft--;
+                    // Recalculate remaining time based on server time
+                    calculateRemainingTime();
                     updateTimerDisplay();
                     
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
-                        alert('Waktu habis! Quiz akan otomatis disubmit.');
-                        document.getElementById('quizForm').submit();
+                        isTimerRunning = false;
+                        showTimeUpModal();
+                        // Auto submit after 2 seconds
+                        setTimeout(function() {
+                            document.getElementById('quizForm').submit();
+                        }, 2000);
                     }
                 }, 1000);
             }
 
-            // Update timer display
+            // Update timer display on all question cards
             function updateTimerDisplay() {
                 var minutes = Math.floor(timeLeft / 60);
                 var seconds = timeLeft % 60;
                 var minutesStr = minutes.toString().padStart(2, '0');
                 var secondsStr = seconds.toString().padStart(2, '0');
-                timerElement.textContent = minutesStr + ':' + secondsStr;
+                var timeString = minutesStr + ':' + secondsStr;
                 
-                // Change color when time is running low
-                if (timeLeft <= 60) {
-                    timerElement.style.color = '#dc3545';
-                    timerElement.style.fontWeight = 'bold';
+                // Update all timer displays
+                var timerElements = getTimerElements();
+                for (var i = 0; i < timerElements.length; i++) {
+                    timerElements[i].textContent = timeString;
+                    
+                    // Change color when time is running low
+                    if (timeLeft <= 60) {
+                        timerElements[i].style.color = '#dc3545';
+                        timerElements[i].style.fontWeight = 'bold';
+                    } else {
+                        timerElements[i].style.color = '';
+                        timerElements[i].style.fontWeight = '';
+                    }
                 }
             }
 
-            // Start timer when page loads
-            startTimer();
+            // Initial sync with server time (Indonesia timezone)
+            syncWithServerTime();
+            
+            // Sync with server every 10 seconds to ensure accuracy
+            setInterval(syncWithServerTime, 10000);
 
             // Navigation functions with validation
             window.nextQuestion = function() {
@@ -179,6 +279,11 @@
                     currentQuestionIndex++;
                     showQuestion(currentQuestionIndex);
                     updateNavigationButtons();
+                    
+                    // Ensure timer continues running
+                    if (!isTimerRunning && timeLeft > 0) {
+                        startTimer();
+                    }
                 }
             };
 
@@ -187,6 +292,11 @@
                     currentQuestionIndex--;
                     showQuestion(currentQuestionIndex);
                     updateNavigationButtons();
+                    
+                    // Ensure timer continues running
+                    if (!isTimerRunning && timeLeft > 0) {
+                        startTimer();
+                    }
                 }
             };
 
@@ -245,6 +355,17 @@
                 var progress = ((index + 1) / totalQuestions) * 100;
                 document.getElementById('progressBar').style.width = progress + '%';
                 document.getElementById('currentQuestion').textContent = index + 1;
+                
+                // Recalculate remaining time based on server time
+                calculateRemainingTime();
+                
+                // Ensure timer is still running and visible
+                if (!isTimerRunning && timeLeft > 0) {
+                    startTimer();
+                }
+                
+                // Update timer display immediately when switching questions
+                updateTimerDisplay();
             }
 
             // Add visual feedback for option selection
@@ -264,6 +385,14 @@
                     // Update navigation buttons when answer is selected
                     updateNavigationButtons();
                 });
+            }
+
+            // Show time up modal with animation
+            function showTimeUpModal() {
+                var modal = document.getElementById('timeUpModal');
+                if (modal) {
+                    modal.classList.add('show');
+                }
             }
         });
     </script>

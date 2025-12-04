@@ -152,25 +152,32 @@
         </div>
         <nav class="sidebar-nav">
             <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
             </a>
             <a href="{{ route('admin.videos') }}" class="nav-link">
-                <i class="fas fa-video"></i> Kelola Video
+                <i class="fas fa-video"></i>
+                <span>Kelola Video</span>
             </a>
             <a href="{{ route('admin.teacher-quiz') }}" class="nav-link">
-                <i class="fas fa-chalkboard-teacher"></i> Kelola Quiz
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Kelola Quiz</span>
             </a>
             <a href="{{ route('admin.students') }}" class="nav-link">
-                <i class="fas fa-users"></i> Data Siswa
+                <i class="fas fa-users"></i>
+                <span>Data Siswa</span>
             </a>
             <a href="{{ route('admin.analytics') }}" class="nav-link">
-                <i class="fas fa-chart-bar"></i> Analitik
+                <i class="fas fa-chart-bar"></i>
+                <span>Clustering</span>
             </a>
             <a href="{{ route('admin.quiz-analytics') }}" class="nav-link active">
-                <i class="fas fa-chart-line"></i> Analitik Kuis
+                <i class="fas fa-chart-line"></i>
+                <span>Analitik Kuis</span>
             </a>
             <a href="{{ route('admin.leaderboard') }}" class="nav-link">
-                <i class="fas fa-trophy"></i> Leaderboard
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
             </a>
         </nav>
     </div>
@@ -178,176 +185,53 @@
     <!-- Main Content -->
     <div class="main-content">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-chart-line me-2"></i> Analitik Kuis Siswa</h2>
-        </div>
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>Analitik</h2>
+            </div>
+            <div class="header-right">
+                <div class="user-actions me-3">
+                    <a href="{{ route('profile') }}" class="btn btn-outline-primary btn-sm me-2" title="Profil">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Logout" onclick="return confirm('Apakah Anda yakin ingin logout?')">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
 
         <!-- Statistics Cards -->
         <div class="row mb-4">
-            <div class="col-md-2">
-                <div class="stats-card">
-                    <div class="stats-number">{{ $stats['total_attempts'] }}</div>
-                    <div class="stats-label">Total Percobaan</div>
-                </div>
-            </div>
-            <div class="col-md-2">
+            <div class="col-md-4">
                 <div class="stats-card">
                     <div class="stats-number">{{ number_format($stats['average_score'], 1) }}%</div>
                     <div class="stats-label">Rata-rata Skor</div>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-4">
                 <div class="stats-card">
                     <div class="stats-number">{{ number_format($stats['highest_score'], 1) }}%</div>
                     <div class="stats-label">Skor Tertinggi</div>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-4">
                 <div class="stats-card">
                     <div class="stats-number">{{ number_format($stats['lowest_score'], 1) }}%</div>
                     <div class="stats-label">Skor Terendah</div>
                 </div>
             </div>
-            <div class="col-md-2">
-                <div class="stats-card">
-                    <div class="stats-number">{{ $stats['total_students'] }}</div>
-                    <div class="stats-label">Total Siswa</div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="stats-card">
-                    <div class="stats-number">{{ $stats['total_quizzes'] }}</div>
-                    <div class="stats-label">Total Quiz</div>
-                </div>
-            </div>
         </div>
 
-        <!-- Filter Section -->
-        <div class="card filter-card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-filter me-2"></i>
-                    Filter Data
-                </h5>
-            </div>
-            <div class="card-body">
-                <form method="GET" action="{{ route('admin.quiz-analytics') }}">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label class="form-label">Kelas</label>
-                            <select name="class_id" class="form-select">
-                                <option value="all" {{ $classId === 'all' ? 'selected' : '' }}>Semua Kelas</option>
-                                @foreach($classes as $class)
-                                <option value="{{ $class->class_id }}" {{ $classId == $class->class_id ? 'selected' : '' }}>
-                                    {{ $class->class_name }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Quiz</label>
-                            <select name="quiz_id" class="form-select">
-                                <option value="all" {{ $quizId === 'all' ? 'selected' : '' }}>Semua Quiz</option>
-                                @foreach($quizzes as $quiz)
-                                <option value="{{ $quiz->id }}" {{ $quizId == $quiz->id ? 'selected' : '' }}>
-                                    {{ $quiz->quiz_title }} ({{ $quiz->class_name }})
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Dari Tanggal</label>
-                            <input type="date" name="date_from" class="form-control" value="{{ $dateFrom }}">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Sampai Tanggal</label>
-                            <input type="date" name="date_to" class="form-control" value="{{ $dateTo }}">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">&nbsp;</label>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-search me-1"></i> Filter
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Quiz Results -->
-        <div class="card quiz-summary-card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-list me-2"></i>
-                    Hasil Kuis Siswa
-                </h5>
-            </div>
-            <div class="card-body">
-                @if($quizSummary->count() > 0)
-                    @foreach($quizSummary as $result)
-                    <div class="quiz-item">
-                        <div class="row align-items-center">
-                            <div class="col-md-4">
-                                <div class="student-info">
-                                    <div class="student-avatar">
-                                        {{ substr($result['user_name'], 0, 1) }}
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold">{{ $result['user_name'] }}</div>
-                                        <div class="text-muted small">{{ $result['class_name'] }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="fw-bold">{{ $result['quiz_title'] }}</div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-clock me-1"></i>
-                                    {{ \Carbon\Carbon::parse($result['answered_at'])->format('d M Y H:i') }}
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                @php
-                                    $scoreClass = 'score-poor';
-                                    if ($result['score'] >= 80) $scoreClass = 'score-excellent';
-                                    elseif ($result['score'] >= 70) $scoreClass = 'score-good';
-                                    elseif ($result['score'] >= 60) $scoreClass = 'score-fair';
-                                @endphp
-                                <span class="score-badge {{ $scoreClass }}">
-                                    {{ number_format($result['score'], 1) }}%
-                                </span>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="quiz-details">
-                                    <div class="detail-item">
-                                        <div class="detail-value">{{ $result['correct_answers'] }}</div>
-                                        <div class="detail-label">Benar</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-value">{{ $result['total_questions'] }}</div>
-                                        <div class="detail-label">Total</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <a href="{{ route('admin.quiz-detail', ['userId' => $result['user_id'], 'quizId' => $result['quiz_id']]) }}" 
-                                   class="btn btn-detail">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                @else
-                    <div class="empty-state">
-                        <i class="fas fa-chart-line"></i>
-                        <h4>Belum Ada Data</h4>
-                        <p>Belum ada siswa yang mengerjakan kuis atau data tidak ditemukan dengan filter yang dipilih.</p>
-                    </div>
-                @endif
-            </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

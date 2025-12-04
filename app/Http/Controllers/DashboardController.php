@@ -28,7 +28,8 @@ class DashboardController extends Controller
         $user = [
             'name' => $userData->user_name,
             'class' => $userData->class_name,
-            'avatar' => asset('image/logo.png')
+            'avatar' => asset('image/logo.png'),
+            'profile_picture' => $userData->profile_picture ?? null
         ];
 
         // Get videos from database based on user's class
@@ -150,6 +151,66 @@ class DashboardController extends Controller
             'success' => true,
             'progress' => $request->progress
         ]);
+    }
+
+    public function welcome()
+    {
+        // Get statistics from database (same as admin dashboard)
+        $totalVideos = DB::table('videos')->count();
+        $totalStudents = DB::table('users')->where('role', 'siswa')->count();
+        
+        // Calculate satisfaction rate based on average video progress and quiz scores
+        // Average video progress (from all students)
+        $avgVideoProgress = DB::table('video_progress')
+            ->select(DB::raw('AVG(progress) as avg_progress'))
+            ->value('avg_progress') ?? 0;
+        
+        // Calculate average quiz score per quiz attempt (similar to QuizAnalyticsController)
+        $quizScores = DB::table('teacher_quiz_answers')
+            ->join('teacher_quizzes', 'teacher_quiz_answers.quiz_id', '=', 'teacher_quizzes.id')
+            ->join('teacher_quiz_questions', 'teacher_quiz_answers.question_id', '=', 'teacher_quiz_questions.id')
+            ->select(
+                'teacher_quiz_answers.quiz_id',
+                'teacher_quiz_answers.user_id',
+                DB::raw('COUNT(*) as total_questions'),
+                DB::raw('SUM(CASE WHEN teacher_quiz_answers.is_correct = 1 THEN 1 ELSE 0 END) as correct_answers')
+            )
+            ->groupBy('teacher_quiz_answers.quiz_id', 'teacher_quiz_answers.user_id')
+            ->get();
+        
+        // Calculate average score percentage from all quiz attempts
+        $avgQuizScore = 0;
+        if ($quizScores->count() > 0) {
+            $totalScore = 0;
+            foreach ($quizScores as $quiz) {
+                $score = $quiz->total_questions > 0 ? ($quiz->correct_answers / $quiz->total_questions) * 100 : 0;
+                $totalScore += $score;
+            }
+            $avgQuizScore = $totalScore / $quizScores->count();
+        }
+        
+        // Calculate overall satisfaction (weighted average: 60% video progress, 40% quiz score)
+        // Or use video progress only if no quiz data
+        $satisfactionRate = 0;
+        if ($avgQuizScore > 0 && $avgVideoProgress > 0) {
+            $satisfactionRate = round(($avgVideoProgress * 0.6) + ($avgQuizScore * 0.4));
+        } elseif ($avgVideoProgress > 0) {
+            $satisfactionRate = round($avgVideoProgress);
+        } elseif ($avgQuizScore > 0) {
+            $satisfactionRate = round($avgQuizScore);
+        } else {
+            // Default to 0 if no data
+            $satisfactionRate = 0;
+        }
+        
+        // Ensure satisfaction rate is between 0-100
+        $satisfactionRate = max(0, min(100, $satisfactionRate));
+        
+        return view('welcome', compact(
+            'totalVideos',
+            'totalStudents',
+            'satisfactionRate'
+        ));
     }
 
     private function formatDuration($minutes)
