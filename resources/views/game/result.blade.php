@@ -2,35 +2,31 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Hasil Quiz - Kuis Teknik Sepeda Motor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/game.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="game-result-container">
+    <div class="game-container">
         <!-- Header -->
-        <header class="game-result-header">
+        <header class="game-header">
             <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h1 class="result-title">
+                    <div class="col-12">
+                        <h1 class="game-title">
                             <i class="fas fa-trophy"></i>
                             Hasil Quiz
                         </h1>
-                    </div>
-                    <div class="col-md-6 text-end">
-                        <a href="{{ route('game.index') }}" class="btn btn-outline-light">
-                            <i class="fas fa-home"></i> Kembali ke Game
-                        </a>
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- Result Content -->
-        <main class="game-result-main">
+        <main class="game-main">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
@@ -145,7 +141,7 @@
                                 </a>
                                 <a href="{{ route('game.index') }}" class="action-btn action-btn-secondary">
                                     <i class="fas fa-list"></i>
-                                    <span>Game Lainnya</span>
+                                    <span>Quiz Lainnya</span>
                                 </a>
                                 <a href="{{ route('game.leaderboard') }}" class="action-btn action-btn-accent">
                                     <i class="fas fa-trophy"></i>

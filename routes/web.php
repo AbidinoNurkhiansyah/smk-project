@@ -14,6 +14,7 @@ Route::post('/register', [App\Http\Controllers\AuthController::class, 'register'
 Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 Route::get('/profile', [App\Http\Controllers\AuthController::class, 'showProfile'])->name('profile');
 Route::post('/profile', [App\Http\Controllers\AuthController::class, 'updateProfile'])->name('profile.update');
+Route::delete('/profile/picture', [App\Http\Controllers\AuthController::class, 'deleteProfilePicture'])->name('profile.picture.delete');
 
 // Password Reset Routes
 Route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotPassword'])->name('password.forgot');
@@ -23,9 +24,7 @@ Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'res
 
 
 
-Route::get('/welcome', function () {
-    return view('welcome');
-})->name('welcome')->middleware('auth.session');
+Route::get('/welcome', [App\Http\Controllers\DashboardController::class, 'welcome'])->name('welcome')->middleware('auth.session');
 
 Route::get('/service', [App\Http\Controllers\ServiceController::class, 'index'])->name('service')->middleware('auth.session');
 
@@ -45,6 +44,7 @@ Route::prefix('game')->name('game.')->middleware('auth.session')->group(function
     Route::get('/play/{id}', [App\Http\Controllers\GameController::class, 'play'])->name('play');
     Route::post('/submit/{id}', [App\Http\Controllers\GameController::class, 'submit'])->name('submit');
     Route::get('/leaderboard', [App\Http\Controllers\GameController::class, 'leaderboard'])->name('leaderboard');
+    Route::get('/time/{id}', [App\Http\Controllers\GameController::class, 'getQuizTime'])->name('time');
 });
 
 // Admin Routes
@@ -81,4 +81,6 @@ Route::prefix('admin')->name('admin.')->middleware('auth.session')->group(functi
 // API Routes for AJAX
 Route::get('/api/dashboard/progress', [App\Http\Controllers\DashboardController::class, 'getProgressData'])->name('api.dashboard.progress');
 Route::post('/api/video/progress', [App\Http\Controllers\DashboardController::class, 'updateVideoProgress'])->name('api.video.progress');
+Route::post('/api/video/duration', [App\Http\Controllers\AdminController::class, 'getVideoDuration'])->name('api.video.duration')->middleware('auth.session');
+Route::get('/api/analytics/class-progress', [App\Http\Controllers\AdminController::class, 'getClassProgress'])->name('api.analytics.class-progress')->middleware('auth.session');
 

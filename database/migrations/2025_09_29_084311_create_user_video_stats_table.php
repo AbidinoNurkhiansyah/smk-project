@@ -13,7 +13,7 @@ return new class extends Migration
     {
        Schema::create('user_video_stats', function (Blueprint $table) {
             $table->integer('stats_id')->primary();
-            $table->integer('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->integer('total_videos')->default(0);
             $table->timestamp('last_updated')->useCurrent();
 

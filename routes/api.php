@@ -18,6 +18,13 @@ use App\Http\Controllers\Api\ProfileApiController;
 |
 */
 
+// API Status
+Route::get('/status', function () {
+    return response()->json([
+        'message' => 'API is running'
+    ]);
+});
+
 // Public routes (no authentication required)
 Route::post('/login', [AuthApiController::class, 'login']);
 Route::post('/register', [AuthApiController::class, 'register']);
@@ -52,4 +59,3 @@ Route::middleware(['api.auth'])->group(function () {
     Route::get('/quizzes/{id}/time', [GameApiController::class, 'getQuizTime']);
     Route::get('/leaderboard', [GameApiController::class, 'leaderboard']);
 });
-

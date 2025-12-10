@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {Schema::create('clustering', function (Blueprint $table) {
             $table->integer('clustering_id')->primary();
-            $table->integer('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->integer('class_id');
             $table->enum('cluster_label', ['rajin','butuh bimbingan']);
             $table->timestamp('assigned_at')->useCurrent();

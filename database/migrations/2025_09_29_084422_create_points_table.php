@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
        Schema::create('points', function (Blueprint $table) {
-            $table->integer('point_id')->primary();
-            $table->integer('user_id');
+            $table->bigIncrements('point_id');  // primary key
+             $table->unsignedBigInteger('user_id');
             $table->integer('total_point')->default(0);
-            $table->timestamp('updated_at')->useCurrent();
+            $table->timestamps();
 
-            $table->foreign('user_id')->references('user_id')->on('users')->restrictOnDelete();
+             $table->foreign('user_id')->references('user_id')->on('users')->restrictOnDelete();
         });
 
     }

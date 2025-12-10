@@ -2,36 +2,104 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Leaderboard - SMK Project</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/game.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="leaderboard-container">
         <!-- Header -->
-        <header class="leaderboard-header">
+        <header class="game-header">
             <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h1 class="leaderboard-title">
+                    <div class="col-12 col-md-4">
+                        <h1 class="game-title">
                             <i class="fas fa-trophy"></i>
                             Leaderboard
                         </h1>
                     </div>
-                    <div class="col-md-6 text-end">
-                        <a href="{{ route('game.index') }}" class="btn btn-outline-light">
-                            <i class="fas fa-arrow-left"></i> Kembali ke Game
-                        </a>
+                    <div class="col-12 col-md-5">
+                        <nav class="header-nav">
+                            <a href="{{ route('video.index') }}" class="nav-btn">
+                                <i class="fas fa-play-circle"></i>
+                                <span>Video</span>
+                            </a>
+                            <a href="{{ route('game.index') }}" class="nav-btn">
+                                <i class="fas fa-clipboard-question"></i>
+                                <span>Quiz</span>
+                            </a>
+                            <a href="{{ route('game.leaderboard') }}" class="nav-btn active">
+                                <i class="fas fa-trophy"></i>
+                                <span>Ranking</span>
+                            </a>
+                        </nav>
+                    </div>
+                    <div class="col-12 col-md-3 text-end">
+                        <div class="user-info">
+                            <span class="user-name d-none d-md-inline">{{ session('user_name') }}</span>
+                            <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-home"></i> <span class="d-none d-sm-inline">Dashboard</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="leaderboard-main">
+        <main class="game-main">
             <div class="container">
+                <!-- Stats Cards -->
+                <div class="row mb-3 g-3 mt-4">
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>{{ $totalQuizzes }}</h3>
+                                <p>Total Quiz</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>{{ $totalPoints }}</h3>
+                                <p>Total Poin</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>{{ $completedQuizzes }}</h3>
+                                <p>Quiz Selesai</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>{{ $userRanking }}</h3>
+                                <p>Leaderboard</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Top 3 Podium -->
                 @if($leaderboard->count() >= 3)
                     <div class="podium-section">
@@ -68,9 +136,9 @@
                 @endif
 
                 <!-- Full Leaderboard -->
-                <div class="leaderboard-section">
+                <div class="game-section">
                     <div class="section-header">
-                        <h2 class="section-title">Daftar Lengkap</h2>
+                        <h2><i class="fas fa-trophy"></i> Daftar Lengkap</h2>
                         <div class="leaderboard-stats">
                             <span class="stat-item">
                                 <i class="fas fa-users"></i>
@@ -115,10 +183,12 @@
                                                         <i class="fas fa-user"></i>
                                                     </div>
                                                     <div class="player-details">
-                                                        <strong>{{ $player->user_name }}</strong>
-                                                        @if($player->user_id == session('user_id'))
-                                                            <span class="you-badge">Anda</span>
-                                                        @endif
+                                                        <strong>
+                                                            {{ $player->user_name }}
+                                                            @if($player->user_id == session('user_id'))
+                                                                <span class="you-badge">Anda</span>
+                                                            @endif
+                                                        </strong>
                                                     </div>
                                                 </div>
                                             </td>
@@ -131,33 +201,17 @@
                                             </td>
                                             <td>
                                                 @if($index < 3)
-                                                    <span class="badge bg-warning">Top 3</span>
+                                                    <span class="badge" style="background: #ffc107; color: #000; font-weight: 600; padding: 0.4rem 0.75rem; border-radius: 8px;">Top 3</span>
                                                 @elseif($index < 10)
-                                                    <span class="badge bg-info">Top 10</span>
+                                                    <span class="badge" style="background: #17a2b8; color: #fff; font-weight: 600; padding: 0.4rem 0.75rem; border-radius: 8px;">Top 10</span>
                                                 @else
-                                                    <span class="badge bg-secondary">Pemain</span>
+                                                    <span class="badge" style="background: #6c757d; color: #fff; font-weight: 500; padding: 0.4rem 0.75rem; border-radius: 8px;">Pemain</span>
                                                 @endif
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="leaderboard-actions">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <a href="{{ route('game.index') }}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-gamepad"></i> Main Game
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="{{ route('dashboard') }}" class="btn btn-outline-primary btn-lg">
-                                <i class="fas fa-home"></i> Dashboard
-                            </a>
                         </div>
                     </div>
                 </div>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class AuthController extends Controller
@@ -135,7 +136,8 @@ class AuthController extends Controller
             'user_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . session('user_id') . ',user_id',
             'current_password' => 'required',
-            'new_password' => 'nullable|string|min:6|confirmed'
+            'new_password' => 'nullable|string|min:6|confirmed',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
         $user = DB::table('users')->where('user_id', session('user_id'))->first();
@@ -149,6 +151,20 @@ class AuthController extends Controller
             'user_name' => $request->user_name,
             'email' => $request->email
         ];
+
+        // Handle profile picture upload
+        if ($request->hasFile('profile_picture')) {
+            // Delete old profile picture if exists
+            if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
+                Storage::disk('public')->delete($user->profile_picture);
+            }
+
+            // Upload new profile picture
+            $image = $request->file('profile_picture');
+            $imageName = 'profile_' . session('user_id') . '_' . time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('profile_pictures', $imageName, 'public');
+            $updateData['profile_picture'] = $imagePath;
+        }
 
         // Update password if provided
         if ($request->new_password) {
@@ -166,6 +182,27 @@ class AuthController extends Controller
         ]);
 
         return back()->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    public function deleteProfilePicture(Request $request)
+    {
+        $user = DB::table('users')->where('user_id', session('user_id'))->first();
+
+        if (!$user || !$user->profile_picture) {
+            return back()->withErrors(['error' => 'Foto profil tidak ditemukan.']);
+        }
+
+        // Delete file from storage
+        if (Storage::disk('public')->exists($user->profile_picture)) {
+            Storage::disk('public')->delete($user->profile_picture);
+        }
+
+        // Update database
+        DB::table('users')
+            ->where('user_id', session('user_id'))
+            ->update(['profile_picture' => null]);
+
+        return back()->with('success', 'Foto profil berhasil dihapus!');
     }
 
     public function showForgotPassword()

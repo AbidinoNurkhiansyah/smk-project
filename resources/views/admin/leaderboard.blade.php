@@ -143,22 +143,32 @@
         </div>
         <nav class="sidebar-nav">
             <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
             </a>
             <a href="{{ route('admin.videos') }}" class="nav-link">
-                <i class="fas fa-video"></i> Kelola Video
+                <i class="fas fa-video"></i>
+                <span>Kelola Video</span>
             </a>
             <a href="{{ route('admin.teacher-quiz') }}" class="nav-link">
-                <i class="fas fa-chalkboard-teacher"></i> Kelola Quiz
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Kelola Quiz</span>
             </a>
             <a href="{{ route('admin.students') }}" class="nav-link">
-                <i class="fas fa-users"></i> Data Siswa
+                <i class="fas fa-users"></i>
+                <span>Data Siswa</span>
             </a>
             <a href="{{ route('admin.analytics') }}" class="nav-link">
-                <i class="fas fa-chart-bar"></i> Analitik
+                <i class="fas fa-chart-bar"></i>
+                <span>Clustering</span>
+            </a>
+            <a href="{{ route('admin.quiz-analytics') }}" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Analitik Kuis</span>
             </a>
             <a href="{{ route('admin.leaderboard') }}" class="nav-link active">
-                <i class="fas fa-trophy"></i> Leaderboard
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
             </a>
         </nav>
     </div>

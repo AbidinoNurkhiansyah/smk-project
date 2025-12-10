@@ -145,25 +145,32 @@
         </div>
         <nav class="sidebar-nav">
             <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
             </a>
             <a href="{{ route('admin.videos') }}" class="nav-link">
-                <i class="fas fa-video"></i> Kelola Video
+                <i class="fas fa-video"></i>
+                <span>Kelola Video</span>
             </a>
             <a href="{{ route('admin.teacher-quiz') }}" class="nav-link">
-                <i class="fas fa-chalkboard-teacher"></i> Kelola Quiz
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Kelola Quiz</span>
             </a>
             <a href="{{ route('admin.students') }}" class="nav-link">
-                <i class="fas fa-users"></i> Data Siswa
+                <i class="fas fa-users"></i>
+                <span>Data Siswa</span>
             </a>
             <a href="{{ route('admin.analytics') }}" class="nav-link">
-                <i class="fas fa-chart-bar"></i> Analitik
+                <i class="fas fa-chart-bar"></i>
+                <span>Clustering</span>
             </a>
             <a href="{{ route('admin.quiz-analytics') }}" class="nav-link active">
-                <i class="fas fa-chart-line"></i> Analitik Kuis
+                <i class="fas fa-chart-line"></i>
+                <span>Analitik Kuis</span>
             </a>
             <a href="{{ route('admin.leaderboard') }}" class="nav-link">
-                <i class="fas fa-trophy"></i> Leaderboard
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
             </a>
         </nav>
     </div>
@@ -196,7 +203,7 @@
                     <h4 class="mb-1">{{ $quiz->quiz_title }}</h4>
                     <p class="mb-0 opacity-75">
                         <i class="fas fa-calendar me-2"></i>
-                        {{ \Carbon\Carbon::parse($answers->first()->answered_at ?? now())->format('d M Y H:i') }}
+                        {{ $answers->isNotEmpty() ? \Carbon\Carbon::parse($answers->first()->answered_at)->format('d M Y H:i') : \Carbon\Carbon::now()->format('d M Y H:i') }}
                     </p>
                 </div>
             </div>
@@ -241,10 +248,11 @@
                 </h5>
             </div>
             <div class="card-body">
-                @foreach($questions as $questionId => $questionOptions)
+                @foreach($questions as $questionId => $questionData)
                     @php
-                        $question = $questionOptions->first();
-                        $studentAnswer = $answers->where('question_id', $questionId)->first();
+                        $question = $questionData['question'];
+                        $questionOptions = $questionData['options'];
+                        $studentAnswer = $answers->get($questionId);
                         $selectedOptionId = $studentAnswer ? $studentAnswer->selected_option : null;
                     @endphp
                     
@@ -256,7 +264,7 @@
                         <div class="options">
                             @foreach($questionOptions as $option)
                                 @php
-                                    $isSelected = $selectedOptionId === $option->option_text;
+                                    $isSelected = $selectedOptionId === $option->option_label;
                                     $isCorrect = $option->is_correct;
                                     
                                     $optionClass = 'option-normal';
@@ -271,7 +279,7 @@
                                 
                                 <div class="option-item {{ $optionClass }}">
                                     <i class="fas fa-circle option-icon"></i>
-                                    {{ $option->option_text }}
+                                    <strong>{{ $option->option_label }}.</strong> {{ $option->option_text }}
                                     
                                     @if($isCorrect)
                                         <i class="fas fa-check-circle float-end text-success"></i>

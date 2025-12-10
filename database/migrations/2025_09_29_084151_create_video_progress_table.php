@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
        Schema::create('video_progress', function (Blueprint $table) {
-            $table->integer('progress_id')->primary();
-            $table->integer('user_id');
+            $table->bigIncrements('progress_id');
+            $table->unsignedBigInteger('user_id');
             $table->integer('video_id');
             $table->tinyInteger('progress');
             $table->boolean('is_completed')->default(false);
-            $table->timestamp('updated_at')->useCurrent();
+            $table->timestamps();
 
             $table->foreign('user_id')->references('user_id')->on('users')->restrictOnDelete();
             $table->foreign('video_id')->references('video_id')->on('videos')->restrictOnDelete();
