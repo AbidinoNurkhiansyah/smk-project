@@ -72,6 +72,21 @@
             </div>
         </div>
 
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ route('video.index') }}" class="action-btn primary">
+                <i class="fas fa-video"></i>
+                <span>Video Pembelajaran</span>
+            </a>
+            <a href="{{ route('game.index') }}" class="action-btn secondary">
+                <i class="fas fa-gamepad"></i>
+                <span>Quiz</span>
+            </a>
+            <a href="{{ route('game.leaderboard') }}" class="action-btn tertiary">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+        </div>
 
         <!-- Gamification Card -->
         <div class="gamification-card">
@@ -110,22 +125,6 @@
                             <div class="progress-card-label">Belum Ditonton</div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <a href="{{ route('video.index') }}" class="action-btn primary">
-                        <i class="fas fa-video"></i>
-                        <span>Video Pembelajaran</span>
-                    </a>
-                    <a href="{{ route('game.index') }}" class="action-btn secondary">
-                        <i class="fas fa-gamepad"></i>
-                        <span>Quiz</span>
-                    </a>
-                    <a href="{{ route('game.leaderboard') }}" class="action-btn tertiary">
-                        <i class="fas fa-trophy"></i>
-                        <span>Leaderboard</span>
-                    </a>
                 </div>
 
                 <!-- Video Grid -->

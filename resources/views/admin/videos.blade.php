@@ -201,11 +201,14 @@
                                     <label for="class_id" class="form-label">Kelas <span class="text-danger">*</span></label>
                                     <select class="form-select" id="class_id" name="class_id" required>
                                         <option value="">Pilih Kelas</option>
-                                        <option value="all">Semua Kelas</option>
+                                        <option value="all" style="font-weight: bold; color: #dc2626;">📚 Semua Kelas (All Kelas)</option>
                                         @foreach($classes as $class)
                                             <option value="{{ $class->class_id }}">{{ $class->class_name }}</option>
                                         @endforeach
                                     </select>
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle"></i> Pilih "Semua Kelas" untuk menambahkan video ke semua kelas sekaligus
+                                    </small>
                                 </div>
                             </div>
                         </div>

@@ -127,7 +127,12 @@ class AuthController extends Controller
             ->select('users.*', 'classes.class_name')
             ->first();
 
-        return view('auth.profile', compact('user'));
+        // Get total points for the user
+        $totalPoints = DB::table('points')
+            ->where('user_id', session('user_id'))
+            ->value('total_point') ?? 0;
+
+        return view('auth.profile', compact('user', 'totalPoints'));
     }
 
     public function updateProfile(Request $request)
@@ -135,17 +140,10 @@ class AuthController extends Controller
         $request->validate([
             'user_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . session('user_id') . ',user_id',
-            'current_password' => 'required',
-            'new_password' => 'nullable|string|min:6|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
         $user = DB::table('users')->where('user_id', session('user_id'))->first();
-
-        // Check current password
-        if (!Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'Password saat ini salah.']);
-        }
 
         $updateData = [
             'user_name' => $request->user_name,
@@ -166,11 +164,6 @@ class AuthController extends Controller
             $updateData['profile_picture'] = $imagePath;
         }
 
-        // Update password if provided
-        if ($request->new_password) {
-            $updateData['password'] = Hash::make($request->new_password);
-        }
-
         DB::table('users')
             ->where('user_id', session('user_id'))
             ->update($updateData);
@@ -182,6 +175,35 @@ class AuthController extends Controller
         ]);
 
         return back()->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    public function showChangePassword()
+    {
+        return view('auth.change-password');
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = DB::table('users')->where('user_id', session('user_id'))->first();
+
+        // Check current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password saat ini salah.']);
+        }
+
+        // Update password
+        DB::table('users')
+            ->where('user_id', session('user_id'))
+            ->update([
+                'password' => Hash::make($request->new_password)
+            ]);
+
+        return redirect()->route('profile')->with('success', 'Password berhasil diubah!');
     }
 
     public function deleteProfilePicture(Request $request)

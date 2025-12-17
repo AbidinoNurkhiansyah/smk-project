@@ -19,9 +19,11 @@ class GameController extends Controller
         // Get user's class_id from session
         $userClassId = session('class_id');
         
-        // Get user info
+        // Get user info with class name
         $user = DB::table('users')
-            ->where('user_id', session('user_id'))
+            ->join('classes', 'users.class_id', '=', 'classes.class_id')
+            ->where('users.user_id', session('user_id'))
+            ->select('users.*', 'classes.class_name')
             ->first();
 
         // Get active teacher quizzes for the user's class
@@ -35,7 +37,23 @@ class GameController extends Controller
             return redirect()->route('dashboard')->with('error', 'Belum ada quiz yang tersedia untuk kelas Anda!');
         }
 
-        return view('game.index', compact('quizzes', 'user'));
+        // Get completed quiz IDs for current user
+        $completedQuizIds = DB::table('teacher_quiz_answers')
+            ->where('user_id', session('user_id'))
+            ->distinct()
+            ->pluck('quiz_id')
+            ->toArray();
+
+        // Add completion status to each quiz
+        $quizzes = $quizzes->map(function($quiz) use ($completedQuizIds) {
+            $quiz->is_completed = in_array($quiz->id, $completedQuizIds);
+            return $quiz;
+        });
+
+        // Count completed quizzes
+        $completedQuizzesCount = count($completedQuizIds);
+
+        return view('game.index', compact('quizzes', 'user', 'completedQuizzesCount'));
     }
 
     public function play($id)

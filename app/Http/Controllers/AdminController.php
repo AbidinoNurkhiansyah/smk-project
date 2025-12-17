@@ -5,6 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminController extends Controller
 {
@@ -146,6 +152,11 @@ class AdminController extends Controller
         // If "all" is selected, insert video for all classes
         if ($request->class_id === 'all') {
             $classes = DB::table('classes')->get();
+            
+            if ($classes->isEmpty()) {
+                return redirect()->route('admin.videos')->with('error', 'Tidak ada kelas yang tersedia!');
+            }
+            
             foreach ($classes as $class) {
                 DB::table('videos')->insert([
                     'video_id' => $nextVideoId,
@@ -157,23 +168,24 @@ class AdminController extends Controller
                 ]);
                 $nextVideoId++;
             }
-            return redirect()->route('admin.videos')->with('success', 'Video berhasil ditambahkan ke semua kelas!');
+            return redirect()->route('admin.videos')->with('success', 'Video berhasil ditambahkan ke semua kelas (' . $classes->count() . ' kelas)!');
         } else {
             // Validate class_id exists
             $request->validate([
                 'class_id' => 'integer|exists:classes,class_id'
             ]);
         
-        DB::table('videos')->insert([
-            'video_id' => $nextVideoId,
-            'judul' => $request->judul,
-            'description' => $request->deskripsi,
-            'video_url' => $request->video_url,
-            'class_id' => $request->class_id,
-            'duration' => $durationInMinutes
-        ]);
+            DB::table('videos')->insert([
+                'video_id' => $nextVideoId,
+                'judul' => $request->judul,
+                'description' => $request->deskripsi,
+                'video_url' => $request->video_url,
+                'class_id' => $request->class_id,
+                'duration' => $durationInMinutes
+            ]);
 
-        return redirect()->route('admin.videos')->with('success', 'Video berhasil ditambahkan!');
+            $className = DB::table('classes')->where('class_id', $request->class_id)->value('class_name');
+            return redirect()->route('admin.videos')->with('success', 'Video berhasil ditambahkan untuk kelas ' . $className . '!');
         }
     }
 
@@ -551,23 +563,44 @@ class AdminController extends Controller
     public function leaderboard(Request $request)
     {
         $selectedClass = $request->get('class_id', 'all');
-        $classes = DB::table('classes')->get();
+        $classes = DB::table('classes')->orderBy('class_name')->get();
         
         $leaderboardQuery = DB::table('users')
             ->join('classes', 'users.class_id', '=', 'classes.class_id')
-            ->join('points', 'users.user_id', '=', 'points.user_id')
-            ->select('users.user_id', 'users.user_name', 'classes.class_name', 'points.total_point')
+            ->leftJoin('points', 'users.user_id', '=', 'points.user_id')
+            ->select(
+                'users.user_id', 
+                'users.user_name', 
+                'users.email',
+                'classes.class_name', 
+                DB::raw('COALESCE(points.total_point, 0) as total_point')
+            )
             ->where('users.role', 'siswa');
             
         if ($selectedClass !== 'all') {
             $leaderboardQuery->where('users.class_id', $selectedClass);
         }
         
-        $leaderboard = $leaderboardQuery->orderBy('points.total_point', 'desc')->get();
+        $leaderboard = $leaderboardQuery->orderBy('total_point', 'desc')
+            ->orderBy('users.user_name', 'asc')
+            ->get();
 
-        // Add ranking
-        $leaderboard = $leaderboard->map(function ($user, $index) {
-            $user->ranking = $index + 1;
+        // Add ranking (handle ties properly)
+        $currentRank = 1;
+        $previousPoints = null;
+        $rankSkip = 0;
+        
+        $leaderboard = $leaderboard->map(function ($user, $index) use (&$currentRank, &$previousPoints, &$rankSkip) {
+            if ($previousPoints !== null && $user->total_point < $previousPoints) {
+                $currentRank = $currentRank + $rankSkip + 1;
+                $rankSkip = 0;
+            } elseif ($previousPoints !== null && $user->total_point == $previousPoints) {
+                $rankSkip++;
+            }
+            
+            $user->ranking = $currentRank;
+            $previousPoints = $user->total_point;
+            
             return $user;
         });
 
@@ -1188,6 +1221,322 @@ class AdminController extends Controller
         ));
     }
 
+    public function exportStudents(Request $request)
+    {
+        $selectedClass = $request->get('class_id', 'all');
+        
+        $studentsQuery = DB::table('users')
+            ->join('classes', 'users.class_id', '=', 'classes.class_id')
+            ->leftJoin('points', 'users.user_id', '=', 'points.user_id')
+            ->where('users.role', 'siswa')
+            ->select(
+                'users.user_id',
+                'users.user_name',
+                'users.email',
+                'classes.class_name',
+                DB::raw('COALESCE(points.total_point, 0) as total_point'),
+                'users.created_at'
+            );
+        
+        if ($selectedClass !== 'all') {
+            $studentsQuery->where('users.class_id', $selectedClass);
+        }
+        
+        $students = $studentsQuery->orderBy('users.created_at', 'desc')->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set title
+        $sheet->setCellValue('A1', 'DATA SISWA');
+        $sheet->mergeCells('A1:G1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // Set filter info
+        $className = $selectedClass === 'all' ? 'Semua Kelas' : DB::table('classes')->where('class_id', $selectedClass)->value('class_name');
+        $sheet->setCellValue('A2', 'Kelas: ' . $className);
+        $sheet->mergeCells('A2:G2');
+        $sheet->getStyle('A2')->getFont()->setSize(12);
+        
+        // Set headers
+        $headers = ['No', 'Nama Lengkap', 'Email', 'Kelas', 'Total Poin', 'Tanggal Bergabung'];
+        $col = 'A';
+        $row = 4;
+        
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . $row, $header);
+            $sheet->getStyle($col . $row)->getFont()->setBold(true);
+            $sheet->getStyle($col . $row)->getFill()
+                ->setFillType(Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FFDC2626');
+            $sheet->getStyle($col . $row)->getFont()->getColor()->setARGB('FFFFFFFF');
+            $sheet->getStyle($col . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle($col . $row)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+            $col++;
+        }
+        
+        // Set data
+        $row = 5;
+        $no = 1;
+        foreach ($students as $student) {
+            $sheet->setCellValue('A' . $row, $no);
+            $sheet->setCellValue('B' . $row, $student->user_name);
+            $sheet->setCellValue('C' . $row, $student->email);
+            $sheet->setCellValue('D' . $row, $student->class_name);
+            $sheet->setCellValue('E' . $row, $student->total_point);
+            $sheet->setCellValue('F' . $row, \Carbon\Carbon::parse($student->created_at)->format('d/m/Y'));
+            
+            // Center align for number columns
+            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('E' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            
+            // Add borders
+            foreach (['A', 'B', 'C', 'D', 'E', 'F'] as $col) {
+                $sheet->getStyle($col . $row)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+            }
+            
+            $row++;
+            $no++;
+        }
+        
+        // Auto size columns
+        foreach (['A', 'B', 'C', 'D', 'E', 'F'] as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'Data_Siswa_' . date('Y-m-d_His') . '.xlsx';
+        
+        return new StreamedResponse(function() use ($writer) {
+            $writer->save('php://output');
+        }, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
+    public function exportClustering(Request $request)
+    {
+        $selectedClass = $request->get('class_id', 'all');
+        
+        // Get clustering data (same logic as analytics method)
+        $videoStats = DB::table('users')
+            ->where('users.role', 'siswa')
+            ->leftJoin('video_progress', 'users.user_id', '=', 'video_progress.user_id')
+            ->leftJoin('videos', function($join) {
+                $join->on('video_progress.video_id', '=', 'videos.video_id')
+                     ->whereColumn('videos.class_id', 'users.class_id');
+            })
+            ->select(
+                'users.user_id',
+                DB::raw('COUNT(DISTINCT video_progress.video_id) as total_videos_watched'),
+                DB::raw('AVG(video_progress.progress) as avg_video_progress')
+            )
+            ->groupBy('users.user_id');
+            
+        if ($selectedClass !== 'all') {
+            $videoStats->where('users.class_id', $selectedClass);
+        }
+        
+        $videoStats = $videoStats->get()->keyBy('user_id');
+
+        $quizStats = DB::table('users')
+            ->where('users.role', 'siswa')
+            ->leftJoin('teacher_quiz_answers', 'users.user_id', '=', 'teacher_quiz_answers.user_id')
+            ->select(
+                'users.user_id',
+                DB::raw('COUNT(DISTINCT teacher_quiz_answers.quiz_id) as total_quizzes_taken'),
+                DB::raw('SUM(CASE WHEN teacher_quiz_answers.is_correct = 1 THEN 1 ELSE 0 END) as total_correct_answers'),
+                DB::raw('COUNT(teacher_quiz_answers.id) as total_quiz_answers')
+            )
+            ->groupBy('users.user_id');
+            
+        if ($selectedClass !== 'all') {
+            $quizStats->where('users.class_id', $selectedClass);
+        }
+        
+        $quizStats = $quizStats->get()->keyBy('user_id');
+
+        $pointsData = DB::table('points')
+            ->select('user_id', 'total_point')
+            ->get()
+            ->keyBy('user_id');
+
+        $clusteringQuery = DB::table('users')
+            ->join('classes', 'users.class_id', '=', 'classes.class_id')
+            ->where('users.role', 'siswa')
+            ->select(
+                'users.user_id',
+                'users.user_name',
+                'users.email',
+                'classes.class_id',
+                'classes.class_name'
+            );
+
+        if ($selectedClass !== 'all') {
+            $clusteringQuery->where('users.class_id', $selectedClass);
+        }
+
+        $students = $clusteringQuery->get();
+
+        $students = $students->map(function($student) use ($videoStats, $quizStats, $pointsData) {
+            $videoStat = $videoStats->get($student->user_id);
+            $quizStat = $quizStats->get($student->user_id);
+            $pointData = $pointsData->get($student->user_id);
+
+            $totalVideosInClass = DB::table('videos')
+                ->where('class_id', $student->class_id)
+                ->count();
+            
+            $videoWatchPercentage = $totalVideosInClass > 0 
+                ? ($videoStat->total_videos_watched ?? 0) / $totalVideosInClass * 100 
+                : 0;
+            $videoScore = min($videoWatchPercentage * 0.3, 30);
+            
+            $videoProgressScore = min(($videoStat->avg_video_progress ?? 0) * 0.3, 30);
+            
+            $quizScore = min((($quizStat->total_quizzes_taken ?? 0) / 5) * 20, 20);
+            
+            $totalQuizAnswers = $quizStat->total_quiz_answers ?? 0;
+            $accuracyScore = $totalQuizAnswers > 0 
+                ? min((($quizStat->total_correct_answers ?? 0) / $totalQuizAnswers) * 20, 20) 
+                : 0;
+            
+            $activityScore = $videoScore + $videoProgressScore + $quizScore + $accuracyScore;
+            $cluster = $activityScore >= 50 ? 'Rajin' : 'Butuh Bimbingan';
+
+            return [
+                'user_id' => $student->user_id,
+                'user_name' => $student->user_name,
+                'email' => $student->email,
+                'class_name' => $student->class_name,
+                'total_videos_watched' => $videoStat->total_videos_watched ?? 0,
+                'total_videos_in_class' => $totalVideosInClass,
+                'avg_video_progress' => round($videoStat->avg_video_progress ?? 0, 2),
+                'total_quizzes_taken' => $quizStat->total_quizzes_taken ?? 0,
+                'total_correct_answers' => $quizStat->total_correct_answers ?? 0,
+                'total_quiz_answers' => $totalQuizAnswers,
+                'total_points' => $pointData->total_point ?? 0,
+                'activity_score' => round($activityScore, 2),
+                'cluster' => $cluster
+            ];
+        });
+
+        $spreadsheet = new Spreadsheet();
+        
+        // Sheet 1: Summary
+        $summarySheet = $spreadsheet->getActiveSheet();
+        $summarySheet->setTitle('Ringkasan');
+        
+        $summarySheet->setCellValue('A1', 'RINGKASAN CLUSTERING');
+        $summarySheet->mergeCells('A1:D1');
+        $summarySheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+        $summarySheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        $className = $selectedClass === 'all' ? 'Semua Kelas' : DB::table('classes')->where('class_id', $selectedClass)->value('class_name');
+        $summarySheet->setCellValue('A2', 'Kelas: ' . $className);
+        $summarySheet->mergeCells('A2:D2');
+        
+        $rajinCount = $students->where('cluster', 'Rajin')->count();
+        $butuhBimbinganCount = $students->where('cluster', 'Butuh Bimbingan')->count();
+        $totalStudents = $students->count();
+        
+        $summarySheet->setCellValue('A4', 'Total Siswa');
+        $summarySheet->setCellValue('B4', $totalStudents);
+        $summarySheet->setCellValue('A5', 'Siswa Rajin');
+        $summarySheet->setCellValue('B5', $rajinCount);
+        $summarySheet->setCellValue('A6', 'Butuh Bimbingan');
+        $summarySheet->setCellValue('B6', $butuhBimbinganCount);
+        $summarySheet->setCellValue('A7', 'Persentase Rajin');
+        $summarySheet->setCellValue('B7', $totalStudents > 0 ? round(($rajinCount / $totalStudents) * 100, 2) . '%' : '0%');
+        
+        foreach (['A', 'B'] as $col) {
+            $summarySheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        // Sheet 2: Detail Data
+        $detailSheet = $spreadsheet->createSheet();
+        $detailSheet->setTitle('Detail Clustering');
+        
+        $headers = ['No', 'Nama', 'Email', 'Kelas', 'Video Ditonton', 'Progress Video (%)', 'Quiz Diambil', 'Jawaban Benar', 'Total Jawaban', 'Total Poin', 'Activity Score', 'Cluster'];
+        $col = 'A';
+        $row = 1;
+        
+        foreach ($headers as $header) {
+            $detailSheet->setCellValue($col . $row, $header);
+            $detailSheet->getStyle($col . $row)->getFont()->setBold(true);
+            $detailSheet->getStyle($col . $row)->getFill()
+                ->setFillType(Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FFDC2626');
+            $detailSheet->getStyle($col . $row)->getFont()->getColor()->setARGB('FFFFFFFF');
+            $detailSheet->getStyle($col . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $detailSheet->getStyle($col . $row)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+            $col++;
+        }
+        
+        $row = 2;
+        $no = 1;
+        foreach ($students->sortByDesc('activity_score') as $student) {
+            $detailSheet->setCellValue('A' . $row, $no);
+            $detailSheet->setCellValue('B' . $row, $student['user_name']);
+            $detailSheet->setCellValue('C' . $row, $student['email']);
+            $detailSheet->setCellValue('D' . $row, $student['class_name']);
+            $detailSheet->setCellValue('E' . $row, $student['total_videos_watched']);
+            $detailSheet->setCellValue('F' . $row, $student['avg_video_progress']);
+            $detailSheet->setCellValue('G' . $row, $student['total_quizzes_taken']);
+            $detailSheet->setCellValue('H' . $row, $student['total_correct_answers']);
+            $detailSheet->setCellValue('I' . $row, $student['total_quiz_answers']);
+            $detailSheet->setCellValue('J' . $row, $student['total_points']);
+            $detailSheet->setCellValue('K' . $row, $student['activity_score']);
+            $detailSheet->setCellValue('L' . $row, $student['cluster']);
+            
+            // Color code cluster
+            if ($student['cluster'] === 'Rajin') {
+                $detailSheet->getStyle('L' . $row)->getFill()
+                    ->setFillType(Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB('FF28A745');
+                $detailSheet->getStyle('L' . $row)->getFont()->getColor()->setARGB('FFFFFFFF');
+            } else {
+                $detailSheet->getStyle('L' . $row)->getFill()
+                    ->setFillType(Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB('FFFFC107');
+            }
+            
+            // Center align for number columns
+            foreach (['A', 'E', 'F', 'G', 'H', 'I', 'J', 'K'] as $col) {
+                $detailSheet->getStyle($col . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            }
+            
+            // Add borders
+            foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'] as $col) {
+                $detailSheet->getStyle($col . $row)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+            }
+            
+            $row++;
+            $no++;
+        }
+        
+        // Auto size columns
+        foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'] as $col) {
+            $detailSheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        $spreadsheet->setActiveSheetIndex(0);
+        
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'Clustering_Siswa_' . date('Y-m-d_His') . '.xlsx';
+        
+        return new StreamedResponse(function() use ($writer) {
+            $writer->save('php://output');
+        }, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
     // API endpoint for real-time progress data
     public function getClassProgress()
     {
@@ -1257,10 +1606,23 @@ class AdminController extends Controller
             ->get()
             ->keyBy('user_id');
 
+        // Get points
+        $pointsData = DB::table('points')
+            ->select('user_id', 'total_point')
+            ->get()
+            ->keyBy('user_id');
+
         // Get students
         $studentsQuery = DB::table('users')
             ->join('classes', 'users.class_id', '=', 'classes.class_id')
-            ->where('users.role', 'siswa');
+            ->where('users.role', 'siswa')
+            ->select(
+                'users.user_id',
+                'users.user_name',
+                'users.email',
+                'classes.class_id',
+                'classes.class_name'
+            );
             
         if ($selectedClass !== 'all') {
             $studentsQuery->where('users.class_id', $selectedClass);
@@ -1268,53 +1630,82 @@ class AdminController extends Controller
         
         $students = $studentsQuery->get();
         
-        // Calculate clustering for each student
-        $rajinCount = 0;
-        $butuhBimbinganCount = 0;
-        
-        foreach ($students as $student) {
+        // Merge with stats
+        $students = $students->map(function($student) use ($videoStats, $quizStats, $pointsData) {
             $videoStat = $videoStats->get($student->user_id);
             $quizStat = $quizStats->get($student->user_id);
-            
-            $totalVideosWatched = $videoStat->total_videos_watched ?? 0;
-            $avgVideoProgress = $videoStat->avg_video_progress ?? 0;
-            $totalQuizzesTaken = $quizStat->total_quizzes_taken ?? 0;
-            $totalCorrectAnswers = $quizStat->total_correct_answers ?? 0;
-            $totalQuizAnswers = $quizStat->total_quiz_answers ?? 0;
-            
-            // Get total videos in class
+            $pointData = $pointsData->get($student->user_id);
+
+            return (object) [
+                'user_id' => $student->user_id,
+                'user_name' => $student->user_name,
+                'email' => $student->email,
+                'class_id' => $student->class_id,
+                'class_name' => $student->class_name,
+                'total_videos_watched' => $videoStat->total_videos_watched ?? 0,
+                'avg_video_progress' => $videoStat->avg_video_progress ?? 0,
+                'total_quizzes_taken' => $quizStat->total_quizzes_taken ?? 0,
+                'total_correct_answers' => $quizStat->total_correct_answers ?? 0,
+                'total_quiz_answers' => $quizStat->total_quiz_answers ?? 0,
+                'total_points' => $pointData->total_point ?? 0
+            ];
+        });
+        
+        // Calculate clustering scores and assign clusters (same logic as analytics)
+        $clusteredStudents = $students->map(function($student) {
+            // Get total videos available for this student's class
             $totalVideosInClass = DB::table('videos')
                 ->where('class_id', $student->class_id)
                 ->count();
             
-            // Calculate activity score (same logic as analytics)
+            // Calculate activity score (0-100)
+            // Video watched score (max 30 points) - based on percentage of videos watched
             $videoWatchPercentage = $totalVideosInClass > 0 
-                ? ($totalVideosWatched / $totalVideosInClass) * 100 
+                ? ($student->total_videos_watched / $totalVideosInClass) * 100 
                 : 0;
             $videoScore = min($videoWatchPercentage * 0.3, 30);
-            $videoProgressScore = min($avgVideoProgress * 0.3, 30);
-            $quizScore = min(($totalQuizzesTaken / 5) * 20, 20);
+            
+            // Video progress score (max 30 points) - average progress of watched videos
+            $videoProgressScore = min($student->avg_video_progress * 0.3, 30);
+            
+            // Quiz taken score (max 20 points)
+            $quizScore = min(($student->total_quizzes_taken / 5) * 20, 20);
+            
+            // Quiz accuracy score (max 20 points)
+            $totalQuizAnswers = $student->total_quiz_answers ?? 0;
             $accuracyScore = $totalQuizAnswers > 0 
-                ? min(($totalCorrectAnswers / $totalQuizAnswers) * 20, 20) 
+                ? min(($student->total_correct_answers / $totalQuizAnswers) * 20, 20) 
                 : 0;
             
             $activityScore = $videoScore + $videoProgressScore + $quizScore + $accuracyScore;
             
             // Determine cluster (threshold: 50 points)
-            // Only count if student has some activity (watched videos or took quizzes)
-            if ($totalVideosWatched > 0 || $totalQuizAnswers > 0) {
-                if ($activityScore >= 50) {
-                    $rajinCount++;
-                } else {
-                    $butuhBimbinganCount++;
-                }
-            }
-        }
+            $cluster = $activityScore >= 50 ? 'rajin' : 'butuh bimbingan';
+            
+            return [
+                'cluster' => $cluster,
+                'activity_score' => round($activityScore, 2)
+            ];
+        });
         
+        // Calculate counts
+        $rajinCount = $clusteredStudents->where('cluster', 'rajin')->count();
+        $butuhBimbinganCount = $clusteredStudents->where('cluster', 'butuh bimbingan')->count();
+        $totalStudents = $clusteredStudents->count();
+        
+        // Return data structure matching analytics page
         return [
             'rajin' => $rajinCount,
             'butuh_bimbingan' => $butuhBimbinganCount,
-            'total' => $students->count()
+            'total' => $totalStudents,
+            'clusteringStats' => [
+                'total_students' => $totalStudents,
+                'rajin_count' => $rajinCount,
+                'butuh_bimbingan_count' => $butuhBimbinganCount,
+                'rajin_percentage' => $totalStudents > 0 
+                    ? round(($rajinCount / $totalStudents) * 100, 2) 
+                    : 0
+            ]
         ];
     }
 }

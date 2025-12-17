@@ -3,17 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - SMK Project</title>
+    <title>Dashboard Guru - SMK Project</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h4><i class="fas fa-graduation-cap"></i> Admin Panel</h4>
+            <h4><i class="fas fa-graduation-cap"></i> Guru Panel</h4>
         </div>
         <nav class="sidebar-nav">
             <a href="{{ route('admin.dashboard') }}" class="nav-link active">
@@ -55,7 +63,8 @@
                 <button class="sidebar-toggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h2>Dashboard Admin</h2>
+                <h2>Dashboard Guru</h2>
+                
             </div>
             <div class="header-right">
                 <div class="user-info">
@@ -162,7 +171,7 @@
                             <h5><i class="fas fa-chart-bar"></i> Performa per Kelas</h5>
                         </div>
                         <div class="card-body">
-                            <canvas id="performanceChart" style="max-height: 400px;"></canvas>
+                            <canvas id="performanceChart" style="max-height: 400px;" data-performance='@json($performanceData)'></canvas>
                         </div>
                     </div>
                 </div>
@@ -172,16 +181,32 @@
                             <h5><i class="fas fa-chart-pie"></i> Clustering Siswa</h5>
                         </div>
                         <div class="card-body">
-                            <canvas id="clusteringChart" style="max-height: 400px;"></canvas>
-                            <div class="mt-3 text-center">
-                                <div class="d-flex justify-content-around">
-                                    <div>
-                                        <span class="badge bg-success me-2">●</span>
-                                        <span>Siswa Rajin: {{ $clusteringData['rajin'] }}</span>
+                            <canvas id="clusteringChart" style="max-height: 300px;" data-clustering='@json($clusteringData)'></canvas>
+                            <div class="mt-3">
+                                <div class="clustering-stats d-flex justify-content-around flex-wrap gap-3">
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value text-success" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">
+                                            {{ $clusteringData['clusteringStats']['rajin_count'] ?? $clusteringData['rajin'] }}
                                         </div>
-                                    <div>
-                                        <span class="badge bg-warning me-2">●</span>
-                                        <span>Butuh Bimbingan: {{ $clusteringData['butuh_bimbingan'] }}</span>
+                                        <div class="stat-label" style="font-size: 0.85rem; color: #6c757d;">Siswa Rajin</div>
+                                    </div>
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value text-warning" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">
+                                            {{ $clusteringData['clusteringStats']['butuh_bimbingan_count'] ?? $clusteringData['butuh_bimbingan'] }}
+                                        </div>
+                                        <div class="stat-label" style="font-size: 0.85rem; color: #6c757d;">Butuh Bimbingan</div>
+                                    </div>
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value text-primary" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">
+                                            {{ $clusteringData['clusteringStats']['total_students'] ?? $clusteringData['total'] }}
+                                        </div>
+                                        <div class="stat-label" style="font-size: 0.85rem; color: #6c757d;">Total Siswa</div>
+                                    </div>
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; color: #28a745;">
+                                            {{ $clusteringData['clusteringStats']['rajin_percentage'] ?? 0 }}%
+                                        </div>
+                                        <div class="stat-label" style="font-size: 0.85rem; color: #6c757d;">Persentase Rajin</div>
                                     </div>
                                 </div>
                             </div>
@@ -193,15 +218,13 @@
         </div>
     </div>
 
-    <!-- Sidebar Overlay for Mobile -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Sidebar toggle functionality
-        const sidebar = document.querySelector('.sidebar');
+        const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.querySelector('.sidebar-toggle');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 
         // Function to check if mobile
         function isMobile() {
@@ -282,9 +305,10 @@
         // Performance Bar Chart
         const performanceCtx = document.getElementById('performanceChart');
         if (performanceCtx) {
-            const performanceData = @json($performanceData);
-            const labels = performanceData.map(item => item.class_name);
-            const scores = performanceData.map(item => {
+            const performanceDataStr = performanceCtx.getAttribute('data-performance');
+            const performanceData = performanceDataStr ? JSON.parse(performanceDataStr) : [];
+            const labels = performanceData.map(function(item) { return item.class_name; });
+            const scores = performanceData.map(function(item) {
                 const score = parseFloat(item.avg_score) || 0;
                 // Only show score if there's actual data (students who took quizzes)
                 return score > 0 ? parseFloat(score.toFixed(2)) : 0;
@@ -340,10 +364,12 @@
         // Clustering Donut Chart
         const clusteringCtx = document.getElementById('clusteringChart');
         if (clusteringCtx) {
-            const clusteringData = @json($clusteringData);
-            const rajin = clusteringData.rajin || 0;
-            const butuhBimbingan = clusteringData.butuh_bimbingan || 0;
-            const total = clusteringData.total || 1;
+            const clusteringDataStr = clusteringCtx.getAttribute('data-clustering');
+            const clusteringData = clusteringDataStr ? JSON.parse(clusteringDataStr) : {};
+            // Support both old and new data structure
+            const rajin = clusteringData.clusteringStats ? clusteringData.clusteringStats.rajin_count : (clusteringData.rajin || 0);
+            const butuhBimbingan = clusteringData.clusteringStats ? clusteringData.clusteringStats.butuh_bimbingan_count : (clusteringData.butuh_bimbingan || 0);
+            const total = clusteringData.clusteringStats ? clusteringData.clusteringStats.total_students : (clusteringData.total || 1);
 
             new Chart(clusteringCtx, {
                 type: 'doughnut',
@@ -374,13 +400,39 @@
                                 label: function(context) {
                                     const label = context.label || '';
                                     const value = context.parsed || 0;
-                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
                                     return label + ': ' + value + ' (' + percentage + '%)';
                                 }
                             }
                         }
                     }
                 }
+            });
+        }
+
+        // Mobile Menu Toggle (using mobileMenuBtn)
+        if (mobileMenuBtn && sidebar && sidebarOverlay) {
+            mobileMenuBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+                // Prevent body scroll when sidebar is open
+                if (sidebar.classList.contains('show')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Close sidebar when clicking on nav link (mobile)
+            const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('show');
+                        sidebarOverlay.classList.remove('show');
+                        document.body.style.overflow = '';
+                    }
+                });
             });
         }
     </script>

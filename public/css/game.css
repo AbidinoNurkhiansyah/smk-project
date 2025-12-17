@@ -1033,7 +1033,7 @@ body {
     .score-percentage {
         font-size: 1.5rem;
     }
-    
+
     .score-grade {
         font-size: 0.8rem;
     }
@@ -1053,50 +1053,50 @@ body {
     .result-content-body {
         padding: 1.25rem 1.25rem;
     }
-    
+
     .result-stats-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
     }
-    
+
     .stat-card-item {
         padding: 0.875rem;
     }
-    
+
     .stat-icon-box {
         width: 40px;
         height: 40px;
         font-size: 1.1rem;
     }
-    
+
     .stat-number {
         font-size: 1.25rem;
     }
-    
+
     .user-stats-card {
         padding: 1.25rem;
     }
-    
+
     .user-stats-title {
         font-size: 1.1rem;
         margin-bottom: 1rem;
     }
-    
+
     .user-stats-grid {
         grid-template-columns: 1fr;
         gap: 0.75rem;
     }
-    
+
     .user-stat-item {
         padding: 0.875rem;
     }
-    
+
     .user-stat-icon {
         width: 40px;
         height: 40px;
         font-size: 1.1rem;
     }
-    
+
     .user-stat-content h4 {
         font-size: 1.2rem;
     }
@@ -1567,11 +1567,11 @@ body {
     .stat-card {
         padding: 1.25rem;
     }
-    
+
     .stat-content h3 {
         font-size: 1.75rem;
     }
-    
+
     .quiz-card {
         margin-bottom: 1.5rem;
     }
@@ -1582,19 +1582,19 @@ body {
     .game-title {
         font-size: 1.25rem;
     }
-    
+
     .game-title i {
         font-size: 1.25rem;
     }
-    
+
     .game-header {
         padding: 0.875rem 0;
     }
-    
+
     .game-main {
         padding-top: 1.5rem;
     }
-    
+
     .header-nav {
         gap: 0.4rem;
         margin: 0.5rem 0;
@@ -1602,157 +1602,157 @@ body {
         width: 100%;
         justify-content: center;
     }
-    
+
     .nav-btn {
         padding: 0.5rem 0.75rem;
         min-width: 60px;
         font-size: 0.75rem;
     }
-    
+
     .nav-btn i {
         font-size: 1rem;
     }
-    
+
     .nav-btn span {
         font-size: 0.7rem;
     }
-    
+
     .user-info {
         flex-direction: column;
         align-items: flex-end;
         gap: 0.5rem;
     }
-    
+
     .user-name {
         font-size: 0.9rem;
     }
-    
+
     .stat-card {
         padding: 1rem;
         margin-bottom: 0.75rem;
     }
-    
+
     .stat-icon {
         width: 50px;
         height: 50px;
         font-size: 1.25rem;
     }
-    
+
     .stat-content h3 {
         font-size: 1.5rem;
     }
-    
+
     .stat-content p {
         font-size: 0.85rem;
     }
-    
+
     .game-section {
         padding: 1.5rem;
         margin-top: 1.5rem;
     }
-    
+
     .section-header h2 {
         font-size: 1.25rem;
     }
-    
+
     .quiz-header {
         padding: 1.5rem;
     }
-    
+
     .quiz-title h3 {
         font-size: 1.5rem;
     }
-    
+
     .quiz-subtitle {
         font-size: 0.95rem;
     }
-    
+
     .quiz-body {
         padding: 1.5rem;
     }
-    
+
     .quiz-footer {
         padding: 1.5rem;
     }
-    
+
     .btn-start-quiz {
         font-size: 1rem;
         padding: 0.875rem 2rem;
     }
-    
+
     .game-info {
         flex-direction: column;
         width: 100%;
     }
-    
+
     .points-badge,
     .difficulty-badge {
         width: 100%;
         justify-content: center;
     }
-    
+
     .question-card {
         padding: 1.25rem;
     }
-    
+
     .question-header {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
     }
-    
+
     .question-number {
         font-size: 1.25rem;
     }
-    
+
     .question-timer {
         width: 100%;
         justify-content: center;
     }
-    
+
     .question-text {
         font-size: 1rem;
     }
-    
+
     .option-label {
         padding: 0.875rem;
     }
-    
+
     .option-letter {
         width: 35px;
         height: 35px;
         font-size: 0.9rem;
     }
-    
+
     .option-text {
         font-size: 0.95rem;
     }
-    
+
     .leaderboard-title {
         font-size: 1.5rem;
     }
-    
+
     .podium-section {
         padding: 1.5rem;
     }
-    
+
     .section-title {
         font-size: 1.25rem;
     }
-    
+
     .result-title {
         font-size: 1.5rem;
     }
-    
+
     .result-actions-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .action-btn {
         padding: 1.25rem;
         font-size: 1rem;
     }
-    
+
     .action-btn i {
         font-size: 1.5rem;
     }
@@ -2046,11 +2046,11 @@ body {
         gap: 1rem;
         text-align: center;
     }
-    
+
     .question-number {
         font-size: 1.25rem;
     }
-    
+
     .question-timer {
         width: 100%;
         justify-content: center;
@@ -2074,27 +2074,27 @@ body {
     .question-image-wrapper {
         padding: 0.75rem;
     }
-    
+
     .quiz-progress {
         padding: 0.875rem;
     }
-    
+
     .progress-text {
         font-size: 0.9rem;
     }
-    
+
     .action-buttons {
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .action-btn {
         min-width: 100%;
         width: 100%;
         padding: 0.625rem 1rem;
         font-size: 0.9rem;
     }
-    
+
     .action-btn i {
         font-size: 0.95rem;
     }
@@ -2105,142 +2105,142 @@ body {
     .game-title {
         font-size: 1.1rem;
     }
-    
+
     .game-title i {
         font-size: 1.1rem;
     }
-    
+
     .game-main {
         padding-top: 1.25rem;
     }
-    
+
     .header-nav {
         gap: 0.3rem;
     }
-    
+
     .nav-btn {
         padding: 0.45rem 0.65rem;
         min-width: 55px;
         font-size: 0.7rem;
     }
-    
+
     .nav-btn i {
         font-size: 0.95rem;
     }
-    
+
     .nav-btn span {
         font-size: 0.65rem;
     }
-    
+
     .action-buttons {
         flex-direction: column;
         gap: 0.75rem;
     }
-    
+
     .action-btn {
         min-width: 100%;
         width: 100%;
         padding: 0.875rem 1.25rem;
         font-size: 0.95rem;
     }
-    
+
     .action-btn i {
         font-size: 1.1rem;
     }
-    
+
     .stat-card {
         padding: 0.875rem;
     }
-    
+
     .stat-icon {
         width: 45px;
         height: 45px;
         font-size: 1.1rem;
     }
-    
+
     .stat-content h3 {
         font-size: 1.35rem;
     }
-    
+
     .stat-content p {
         font-size: 0.8rem;
     }
-    
+
     .game-section {
         padding: 1rem;
     }
-    
+
     .quiz-header {
         padding: 1.25rem;
     }
-    
+
     .quiz-title h3 {
         font-size: 1.35rem;
     }
-    
+
     .quiz-badges .badge {
         font-size: 0.85rem;
         padding: 0.5rem 0.875rem;
     }
-    
+
     .quiz-body {
         padding: 1.25rem;
     }
-    
+
     .quiz-footer {
         padding: 1.25rem;
     }
-    
+
     .question-card {
         padding: 1rem;
     }
-    
+
     .question-text {
         font-size: 0.95rem;
     }
-    
+
     .option-label {
         padding: 0.75rem;
     }
-    
+
     .option-letter {
         width: 32px;
         height: 32px;
         font-size: 0.85rem;
         margin-right: 0.75rem;
     }
-    
+
     .option-text {
         font-size: 0.9rem;
     }
-    
+
     .podium-item {
         min-width: 100%;
         padding: 1rem;
     }
-    
+
     .leaderboard-table .table thead th {
         font-size: 0.85rem;
         padding: 0.75rem 0.5rem;
     }
-    
+
     .leaderboard-table .table tbody td {
         padding: 0.875rem 0.5rem;
         font-size: 0.85rem;
     }
-    
+
     .player-cell {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
     }
-    
+
     .player-avatar-small {
         width: 32px;
         height: 32px;
         font-size: 0.85rem;
     }
-    
+
     .rank-badge {
         width: 32px;
         height: 32px;
@@ -2263,6 +2263,36 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     border-color: #dc2626;
+}
+
+.quiz-card.quiz-completed {
+    border: 2px solid #28a745;
+    position: relative;
+}
+
+.quiz-card.quiz-completed .quiz-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.quiz-completed-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: #28a745;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.quiz-completed-badge i {
+    font-size: 0.85rem;
 }
 
 .quiz-header {
@@ -2292,8 +2322,25 @@ body {
 .quiz-subtitle {
     font-size: 0.875rem;
     opacity: 0.95;
-    margin: 0;
+    margin: 0.5rem 0;
     font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.quiz-subtitle .separator {
+    opacity: 0.6;
+    margin: 0 0.25rem;
+}
+
+.quiz-description {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin: 0.5rem 0 0 0;
+    font-style: italic;
+    line-height: 1.4;
 }
 
 .quiz-badges {
@@ -2601,6 +2648,7 @@ body {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -2611,10 +2659,12 @@ body {
         transform: scale(0.7) translateY(-50px);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.05) translateY(0);
         opacity: 1;
     }
+
     100% {
         transform: scale(1) translateY(0);
         opacity: 1;
@@ -2622,9 +2672,12 @@ body {
 }
 
 @keyframes iconPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.1);
     }
@@ -2635,6 +2688,7 @@ body {
         transform: rotate(-180deg);
         opacity: 0;
     }
+
     100% {
         transform: rotate(0deg);
         opacity: 1;
@@ -2646,6 +2700,7 @@ body {
         opacity: 0;
         transform: translateY(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

@@ -82,7 +82,7 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="stat-content">
-                                <h3>{{ DB::table('user_challenges')->where('user_id', session('user_id'))->where('is_correct', 1)->count() }}</h3>
+                                <h3>{{ $completedQuizzesCount ?? 0 }}</h3>
                                 <p>Quiz Selesai</p>
                             </div>
                         </div>
@@ -111,12 +111,29 @@
                             <div class="row g-3">
                                 @forelse($quizzes as $quiz)
                                 <div class="col-12 col-md-6 col-lg-4">
-                                    <div class="quiz-card">
+                                    <div class="quiz-card {{ $quiz->is_completed ? 'quiz-completed' : '' }}">
                                         <div class="quiz-header">
+                                            @if($quiz->is_completed)
+                                            <div class="quiz-completed-badge">
+                                                <i class="fas fa-check-circle"></i> Selesai
+                                            </div>
+                                            @endif
                                             <div class="quiz-title">
                                                 <h3><i class="fas fa-brain"></i> {{ $quiz->quiz_title }}</h3>
                                             </div>
-                                            <p class="quiz-subtitle">Kelas {{ $user->class_name ?? 'TSM X' }} - Tingkat {{ ucfirst($quiz->difficulty) }}</p>
+                                            <p class="quiz-subtitle">
+                                                <i class="fas fa-graduation-cap"></i> 
+                                                @if(isset($user->class_name) && $user->class_name)
+                                                    Kelas {{ $user->class_name }}
+                                                @else
+                                                    Kelas TSM X
+                                                @endif
+                                                <span class="separator">•</span> 
+                                                Tingkat {{ ucfirst($quiz->difficulty) }}
+                                            </p>
+                                            @if($quiz->quiz_description)
+                                            <p class="quiz-description">{{ strlen($quiz->quiz_description) > 80 ? substr($quiz->quiz_description, 0, 80) . '...' : $quiz->quiz_description }}</p>
+                                            @endif
                                             <div class="quiz-badges">
                                                 <span class="badge bg-primary">
                                                     <i class="fas fa-question-circle"></i> {{ $quiz->total_questions }} Soal
@@ -131,9 +148,15 @@
                                         </div>
                                         
                                         <div class="quiz-footer">
+                                            @if($quiz->is_completed)
+                                            <a href="{{ route('game.play', $quiz->id) }}" class="btn btn-success btn-lg btn-start-quiz w-100">
+                                                <i class="fas fa-redo"></i> Kerjakan Lagi
+                                            </a>
+                                            @else
                                             <a href="{{ route('game.play', $quiz->id) }}" class="btn btn-primary btn-lg btn-start-quiz w-100">
                                                 <i class="fas fa-play"></i> Mulai Quiz
                                             </a>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

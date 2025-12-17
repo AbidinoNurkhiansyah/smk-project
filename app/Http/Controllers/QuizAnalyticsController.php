@@ -45,9 +45,11 @@ class QuizAnalyticsController extends Controller
                     ->join('teacher_quizzes as tq', 'tqq.quiz_id', '=', 'tq.id')
                     ->select(
                         'tqa.*',
+                        'users.user_id',
                         'users.user_name',
                         'users.email',
                         'classes.class_name',
+                        'tq.id as quiz_id',
                         'tq.quiz_title',
                         'tqq.question as question_text',
                         'tqa.user_answer as option_text',

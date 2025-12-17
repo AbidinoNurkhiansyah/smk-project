@@ -909,9 +909,10 @@ body {
 /* Action Buttons */
 .action-buttons {
     display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 1rem;
+    margin: 1.5rem 0;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .action-btn {
@@ -1210,19 +1211,77 @@ body {
 }
 
 /* Responsive Design for Dashboard Page */
+@media (max-width: 1024px) {
+    .header-content {
+        padding: 0 1.5rem;
+    }
+
+    .main-content {
+        padding: 1.5rem;
+    }
+
+    .video-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
 @media (max-width: 768px) {
     .header {
-        padding: 1rem;
+        padding: 0.75rem 1rem;
     }
 
     .header-content {
-        flex-direction: column;
-        gap: 1rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 0;
+    }
+
+    .logo-section {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .logo-text h1 {
+        font-size: 1.2rem;
+    }
+
+    .logo-text p {
+        font-size: 0.75rem;
+    }
+
+    .logo-icon {
+        width: 40px;
+        height: 40px;
     }
 
     .user-section {
         width: 100%;
         justify-content: space-between;
+        order: 3;
+    }
+
+    .user-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .user-details {
+        display: none;
+    }
+
+    .user-profile-picture {
+        width: 40px;
+        height: 40px;
+    }
+
+    .user-actions {
+        gap: 0.25rem;
+    }
+
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
     }
 
     .main-content {
@@ -1233,6 +1292,15 @@ body {
         flex-direction: column;
         text-align: center;
         gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .welcome-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .welcome-content p {
+        font-size: 0.9rem;
     }
 
     .welcome-actions {
@@ -1240,37 +1308,279 @@ body {
         width: 100%;
     }
 
+    .gamification-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.25rem;
+    }
+
+    .gamification-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    .gamification-content h3 {
+        font-size: 1.1rem;
+    }
+
+    .gamification-content p {
+        font-size: 0.85rem;
+    }
+
     .stats-section {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
 
     .video-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .video-card {
+        margin-bottom: 0;
+    }
+
+    .video-thumbnail {
+        height: 160px;
+        font-size: 2.5rem;
+    }
+
+    .video-content {
+        padding: 1.25rem;
+    }
+
+    .video-title {
+        font-size: 1rem;
     }
 
     .section-tabs {
-        flex-direction: column;
+        flex-direction: row;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .tab-button {
-        justify-content: flex-start;
+        white-space: nowrap;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .tab-content {
+        padding: 1.5rem;
+    }
+
+    .progress-overview {
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-cards {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    .progress-card {
+        padding: 0.75rem;
+    }
+
+    .progress-card-number {
+        font-size: 1.25rem;
+    }
+
+    .progress-card-label {
+        font-size: 0.8rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        width: 100%;
+        min-width: unset;
+        padding: 0.875rem 1rem;
+        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 480px) {
+    .header {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .logo-text h1 {
+        font-size: 1rem;
+    }
+
+    .logo-text p {
+        font-size: 0.7rem;
+    }
+
+    .logo-icon {
+        width: 35px;
+        height: 35px;
+    }
+
+    .user-profile-picture {
+        width: 35px;
+        height: 35px;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+
     .main-content {
-        padding: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .welcome-box {
+        padding: 1.25rem;
     }
 
     .welcome-content h2 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
     }
 
-    .video-grid {
-        grid-template-columns: 1fr;
+    .welcome-content p {
+        font-size: 0.85rem;
+    }
+
+    .gamification-card {
+        padding: 1rem;
+    }
+
+    .gamification-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.25rem;
+    }
+
+    .gamification-content h3 {
+        font-size: 1rem;
+    }
+
+    .gamification-content p {
+        font-size: 0.8rem;
+    }
+
+    .video-thumbnail {
+        height: 140px;
+        font-size: 2rem;
+    }
+
+    .video-content {
+        padding: 1rem;
+    }
+
+    .video-title {
+        font-size: 0.95rem;
+    }
+
+    .tab-content {
+        padding: 1rem;
     }
 
     .progress-cards {
         grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .progress-card {
+        padding: 0.625rem;
+    }
+
+    .progress-card-number {
+        font-size: 1.1rem;
+    }
+
+    .progress-card-label {
+        font-size: 0.75rem;
+    }
+
+    .action-btn {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.85rem;
+    }
+
+    .video-overlay-info {
+        padding: 0.75rem;
+    }
+
+    .video-category,
+    .video-duration,
+    .video-completed,
+    .video-in-progress,
+    .video-new {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .header {
+        padding: 0.5rem;
+    }
+
+    .logo-text h1 {
+        font-size: 0.9rem;
+    }
+
+    .main-content {
+        padding: 0.5rem;
+    }
+
+    .welcome-box {
+        padding: 1rem;
+    }
+
+    .welcome-content h2 {
+        font-size: 1.1rem;
+    }
+
+    .video-thumbnail {
+        height: 120px;
+    }
+
+    .tab-content {
+        padding: 0.75rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .video-card:hover {
+        transform: none;
+    }
+
+    .video-card:active {
+        transform: scale(0.98);
+    }
+
+    .action-btn:hover {
+        transform: none;
+    }
+
+    .action-btn:active {
+        transform: scale(0.95);
+    }
+
+    .btn-icon:hover {
+        transform: none;
+    }
+
+    .btn-icon:active {
+        transform: scale(0.9);
+    }
+
+    /* Increase touch target sizes */
+    .action-btn,
+    .btn-icon,
+    .tab-button {
+        min-height: 44px;
     }
 }

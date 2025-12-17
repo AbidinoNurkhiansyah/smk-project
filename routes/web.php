@@ -15,6 +15,8 @@ Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->
 Route::get('/profile', [App\Http\Controllers\AuthController::class, 'showProfile'])->name('profile');
 Route::post('/profile', [App\Http\Controllers\AuthController::class, 'updateProfile'])->name('profile.update');
 Route::delete('/profile/picture', [App\Http\Controllers\AuthController::class, 'deleteProfilePicture'])->name('profile.picture.delete');
+Route::get('/change-password', [App\Http\Controllers\AuthController::class, 'showChangePassword'])->name('password.change');
+Route::post('/change-password', [App\Http\Controllers\AuthController::class, 'changePassword'])->name('password.change.update');
 
 // Password Reset Routes
 Route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotPassword'])->name('password.forgot');
@@ -58,10 +60,12 @@ Route::prefix('admin')->name('admin.')->middleware('auth.session')->group(functi
     
     
     Route::get('/students', [App\Http\Controllers\AdminController::class, 'students'])->name('students');
+    Route::get('/students/export', [App\Http\Controllers\AdminController::class, 'exportStudents'])->name('students.export');
     Route::get('/students/{id}/progress', [App\Http\Controllers\AdminController::class, 'studentProgress'])->name('student-progress');
     Route::delete('/students/{id}/delete', [App\Http\Controllers\AdminController::class, 'deleteStudent'])->name('delete-student');
     
     Route::get('/analytics', [App\Http\Controllers\AdminController::class, 'analytics'])->name('analytics');
+    Route::get('/analytics/export', [App\Http\Controllers\AdminController::class, 'exportClustering'])->name('analytics.export');
     Route::get('/leaderboard', [App\Http\Controllers\AdminController::class, 'leaderboard'])->name('leaderboard');
     
     // Quiz Management (Teacher Quiz)

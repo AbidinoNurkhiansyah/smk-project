@@ -20,7 +20,10 @@
                     <p>Teknik Sepeda Motor</p>
                 </div>
             </div>
-            <nav>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="mainNav">
                 <a href="{{ route('welcome') }}" class="nav-link"><i class="fas fa-home"></i> Beranda</a>
                 <a href="{{ route('service') }}" class="nav-link"><i class="fas fa-tools"></i> Edukasi Service</a>
                 <a href="{{ route('profile') }}" class="nav-link"><i class="fas fa-user"></i> Profil</a>
@@ -196,7 +199,7 @@
                 </div>
                 <div class="member">
                     <div class="member-img">
-                        <img src="{{ asset('image/rega.jpg') }}" alt="Rega">
+                        <img src="{{ asset('image/mbg.jpg') }}" alt="Rega">
                     </div>
                     <h3>Rega</h3>
                     <p class="member-role">Project Manager</p>
@@ -238,8 +241,8 @@
                         <h4>Kontak</h4>
                         <ul>
                             <li><i class="fas fa-envelope"></i> info@mechalearn.com</li>
-                            <li><i class="fas fa-phone"></i> +62 123 456 789</li>
-                            <li><i class="fas fa-map-marker-alt"></i> Indonesia</li>
+                            <li><i class="fas fa-phone"></i> +62 89655827824
+                            <li><i class="fas fa-map-marker-alt"></i> Jl. Pangkal Perjuangan KM 1 By Pass, Tanjungpura, Karawang Barat, Karawang, Jawa Barat, Indonesia.</li>
                         </ul>
                     </div>
                 </div>
@@ -402,6 +405,25 @@
 
         const footerContent = document.querySelector('.footer-content');
         if (footerContent) footerObserver.observe(footerContent);
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mainNav = document.getElementById('mainNav');
+
+        if (mobileMenuBtn && mainNav) {
+            mobileMenuBtn.addEventListener('click', function() {
+                mainNav.classList.toggle('active');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768) {
+                    if (!mainNav.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+                        mainNav.classList.remove('active');
+                    }
+                }
+            });
+        }
     </script>
 
 </body>

@@ -258,26 +258,54 @@
             color: #6c757d;
         }
 
-        .password-input-wrapper {
-            position: relative;
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 1rem;
+                border-radius: 10px;
+            }
+
+            .profile-header {
+                padding: 1.5rem;
+            }
+
+            .profile-body {
+                padding: 1.5rem;
+            }
+
+            .d-flex.gap-2 {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .d-flex.gap-2 .btn {
+                width: 100%;
+            }
+
+            .user-info p {
+                font-size: 0.9rem;
+            }
+
+            .user-info[style*="background: linear-gradient"] p {
+                font-size: 1.25rem !important;
+            }
         }
 
-        .password-input-wrapper .form-control {
-            padding-right: 45px;
-        }
+        @media (max-width: 480px) {
+            .profile-container {
+                margin: 0.5rem;
+            }
 
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #6c757d;
-            transition: color 0.3s ease;
-        }
+            .profile-header {
+                padding: 1rem;
+            }
 
-        .toggle-password:hover {
-            color: #dc2626;
+            .profile-body {
+                padding: 1rem;
+            }
+
+            .user-info[style*="background: linear-gradient"] p {
+                font-size: 1.1rem !important;
+            }
         }
     </style>
 </head>
@@ -366,6 +394,12 @@
                     <p>Email: {{ $user->email }}<br>Kelas: {{ $user->class_name }}</p>
                 </div>
 
+                <!-- Points Display -->
+                <div class="user-info" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; border-left: 4px solid #ff9100;">
+                    <h6 style="color: white;"><i class="fas fa-trophy"></i> Total Poin</h6>
+                    <p style="color: white; font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0 0 0;">{{ number_format($totalPoints) }} Poin</p>
+                </div>
+
                 <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     
@@ -382,38 +416,18 @@
                         <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="current_password" class="form-label">Password Saat Ini</label>
-                        <div class="password-input-wrapper">
-                            <input type="password" class="form-control" id="current_password" name="current_password" required>
-                            <i class="fas fa-eye toggle-password" id="toggleCurrentPassword"></i>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="new_password" class="form-label">Password Baru (opsional)</label>
-                        <div class="password-input-wrapper">
-                            <input type="password" class="form-control" id="new_password" name="new_password">
-                            <i class="fas fa-eye toggle-password" id="toggleNewPassword"></i>
-                        </div>
-                        <div class="form-text">Kosongkan jika tidak ingin mengubah password</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="new_password_confirmation" class="form-label">Konfirmasi Password Baru</label>
-                        <div class="password-input-wrapper">
-                            <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation">
-                            <i class="fas fa-eye toggle-password" id="toggleNewPasswordConfirmation"></i>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between flex-wrap gap-2">
                         <a href="{{ route('welcome') }}" class="btn btn-secondary btn-back">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </a>
-                        <button type="submit" class="btn btn-primary btn-save">
-                            <i class="fas fa-save"></i> Simpan Perubahan
-                        </button>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('password.change') }}" class="btn btn-warning" style="background: #ff9100; border: none; color: white;">
+                                <i class="fas fa-key"></i> Ubah Password
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-save">
+                                <i class="fas fa-save"></i> Simpan Perubahan
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -442,39 +456,144 @@
         }
 
         function previewProfilePicture(input) {
-            var preview = document.getElementById('profilePreview');
-            var uploadWrapper = preview.parentElement;
-            
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    if (preview.tagName === 'IMG') {
-                        preview.src = e.target.result;
-                    } else {
-                        var newImg = document.createElement('img');
-                        newImg.src = e.target.result;
-                        newImg.alt = 'Foto Profil';
-                        newImg.className = 'profile-picture-preview profile-picture-clickable';
-                        newImg.id = 'profilePreview';
-                        newImg.style.width = '120px';
-                        newImg.style.height = '120px';
-                        newImg.style.borderRadius = '50%';
-                        newImg.style.objectFit = 'cover';
-                        newImg.style.border = '4px solid rgba(255,255,255,0.3)';
-                        newImg.style.margin = '0 auto 1rem';
-                        newImg.style.display = 'block';
-                        newImg.style.cursor = 'pointer';
-                        newImg.onclick = showProfilePictureModal;
-                        
-                        uploadWrapper.replaceChild(newImg, preview);
-                    }
-                    // Close modal after selecting file
-                    closeProfilePictureModal();
-                };
-                
-                reader.readAsDataURL(input.files[0]);
+            if (!input.files || !input.files[0]) {
+                console.log('No file selected');
+                return;
             }
+
+            var file = input.files[0];
+            console.log('File selected:', file.name, file.type, file.size);
+            
+            // Validate file type
+            var validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                alert('Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WEBP.');
+                input.value = '';
+                return;
+            }
+
+            // Validate file size (max 2MB)
+            if (file.size > 2048 * 1024) {
+                alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                input.value = '';
+                return;
+            }
+
+            var reader = new FileReader();
+            var preview = document.getElementById('profilePreview');
+            var previewFallback = document.getElementById('profilePreviewFallback');
+            var uploadWrapper = document.querySelector('.profile-picture-upload');
+            
+            if (!uploadWrapper) {
+                console.error('Upload wrapper not found');
+                return;
+            }
+            
+            reader.onload = function(e) {
+                var imageUrl = e.target.result;
+                console.log('Image loaded, creating preview');
+                
+                // If preview exists and is an IMG element
+                if (preview && preview.tagName === 'IMG') {
+                    console.log('Updating existing image');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    preview.style.visibility = 'visible';
+                    preview.style.opacity = '1';
+                    if (previewFallback) {
+                        previewFallback.style.display = 'none';
+                    }
+                    
+                    // Show success message
+                    var existingMsg = uploadWrapper.querySelector('.alert-success');
+                    if (existingMsg) {
+                        existingMsg.remove();
+                    }
+                    var successMsg = document.createElement('div');
+                    successMsg.className = 'alert alert-success';
+                    successMsg.style.marginTop = '1rem';
+                    successMsg.style.textAlign = 'center';
+                    successMsg.innerHTML = '<i class="fas fa-check-circle"></i> Foto dipilih! Klik "Simpan Perubahan" untuk mengupload.';
+                    uploadWrapper.appendChild(successMsg);
+                    
+                    // Remove message after 5 seconds
+                    setTimeout(function() {
+                        if (successMsg.parentNode) {
+                            successMsg.parentNode.removeChild(successMsg);
+                        }
+                    }, 5000);
+                } else {
+                    console.log('Creating new image element');
+                    // Remove existing preview elements
+                    if (preview) {
+                        if (preview.parentNode) {
+                            preview.parentNode.removeChild(preview);
+                        }
+                    }
+                    if (previewFallback) {
+                        previewFallback.style.display = 'none';
+                    }
+                    
+                    // Create new image element
+                    var newImg = document.createElement('img');
+                    newImg.src = imageUrl;
+                    newImg.alt = 'Foto Profil';
+                    newImg.className = 'profile-picture-preview profile-picture-clickable';
+                    newImg.id = 'profilePreview';
+                    newImg.onclick = showProfilePictureModal;
+                    newImg.onerror = function() {
+                        console.error('Error loading preview image');
+                        handleImageError(this);
+                    };
+                    
+                    // Ensure all styles are applied
+                    newImg.style.width = '120px';
+                    newImg.style.height = '120px';
+                    newImg.style.borderRadius = '50%';
+                    newImg.style.objectFit = 'cover';
+                    newImg.style.border = '4px solid rgba(255,255,255,0.3)';
+                    newImg.style.margin = '0 auto 1rem';
+                    newImg.style.display = 'block';
+                    newImg.style.cursor = 'pointer';
+                    newImg.style.visibility = 'visible';
+                    newImg.style.opacity = '1';
+                    
+                    // Clear upload wrapper first
+                    uploadWrapper.innerHTML = '';
+                    
+                    // Append to upload wrapper
+                    uploadWrapper.appendChild(newImg);
+                    console.log('Preview image added to DOM');
+                    
+                    // Show success message
+                    var successMsg = document.createElement('div');
+                    successMsg.className = 'alert alert-success';
+                    successMsg.style.marginTop = '1rem';
+                    successMsg.style.textAlign = 'center';
+                    successMsg.innerHTML = '<i class="fas fa-check-circle"></i> Foto dipilih! Klik "Simpan Perubahan" untuk mengupload.';
+                    uploadWrapper.appendChild(successMsg);
+                    
+                    // Remove message after 5 seconds
+                    setTimeout(function() {
+                        if (successMsg.parentNode) {
+                            successMsg.parentNode.removeChild(successMsg);
+                        }
+                    }, 5000);
+                }
+                
+                // Close modal after a short delay
+                setTimeout(function() {
+                    closeProfilePictureModal();
+                }, 300);
+            };
+            
+            reader.onerror = function() {
+                console.error('Error reading file');
+                alert('Error membaca file. Silakan coba lagi.');
+                input.value = '';
+            };
+            
+            reader.readAsDataURL(file);
         }
 
         function deleteProfilePicture() {
@@ -491,53 +610,6 @@
             }
         });
 
-        // Toggle current password visibility
-        document.getElementById('toggleCurrentPassword').addEventListener('click', function() {
-            var passwordInput = document.getElementById('current_password');
-            var toggleIcon = this;
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        });
-
-        // Toggle new password visibility
-        document.getElementById('toggleNewPassword').addEventListener('click', function() {
-            var passwordInput = document.getElementById('new_password');
-            var toggleIcon = this;
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        });
-
-        // Toggle new password confirmation visibility
-        document.getElementById('toggleNewPasswordConfirmation').addEventListener('click', function() {
-            var passwordInput = document.getElementById('new_password_confirmation');
-            var toggleIcon = this;
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        });
     </script>
 </body>
 </html>

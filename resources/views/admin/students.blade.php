@@ -106,8 +106,11 @@
 
             <!-- Students Table -->
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5><i class="fas fa-users"></i> Daftar Siswa</h5>
+                    <a href="{{ route('admin.students.export', ['class_id' => $selectedClass]) }}" class="btn btn-success btn-sm">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

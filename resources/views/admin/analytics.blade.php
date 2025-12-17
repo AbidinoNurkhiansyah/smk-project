@@ -326,8 +326,11 @@
             <div class="row mb-4">
                 <div class="col-md-12">
                     <div class="card analytics-card">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h5><i class="fas fa-users-cog"></i> Klastering Siswa</h5>
+                            <a href="{{ route('admin.analytics.export', ['class_id' => $selectedClass]) }}" class="btn btn-success btn-sm" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </a>
                         </div>
                         <div class="card-body">
                             <!-- Filter -->

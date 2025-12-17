@@ -920,6 +920,34 @@ body {
     }
 }
 
+/* Mobile Menu Button */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-menu-btn:active {
+    transform: scale(0.95);
+}
+
 /* Sidebar Overlay for Mobile */
 .sidebar-overlay {
     display: none;
@@ -940,9 +968,15 @@ body {
 }
 
 @media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .sidebar {
         transform: translateX(-100%);
-        width: 250px;
+        width: 280px;
         transition: transform 0.3s ease;
         z-index: 1000;
     }
@@ -952,16 +986,21 @@ body {
     }
 
     .sidebar.collapsed {
-        width: 250px;
+        width: 280px;
     }
 
     .main-content {
         margin-left: 0;
-        padding: 15px 20px;
+        padding: 70px 15px 15px;
     }
 
     .sidebar-header h4 {
         font-size: 16px;
+    }
+
+    .nav-link {
+        padding: 14px 20px;
+        font-size: 0.95rem;
     }
 
     .nav-link span {
@@ -974,10 +1013,22 @@ body {
 
     .header {
         padding: 10px 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .header h2 {
+        font-size: 1.3rem;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 150px;
     }
 
     .search-box input {
-        width: 150px;
+        width: 100%;
+        font-size: 0.9rem;
     }
 
     .main-content .card {
@@ -987,12 +1038,38 @@ body {
     .main-content .card-body {
         padding: 15px;
     }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
 }
 
 @media (max-width: 576px) {
+    .mobile-menu-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+        top: 10px;
+        left: 10px;
+    }
+
     .sidebar {
         transform: translateX(-100%);
-        width: 280px;
+        width: 260px;
     }
 
     .sidebar.show {
@@ -1001,12 +1078,36 @@ body {
 
     .main-content {
         margin-left: 0;
-        padding: 10px 15px;
+        padding: 60px 10px 10px;
+    }
+
+    .header {
+        padding: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header h2 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .search-box {
+        width: 100%;
     }
 
     .stat-card {
         flex-direction: column;
         text-align: center;
+        padding: 12px;
+    }
+
+    .stat-card h3 {
+        font-size: 1.1rem;
+    }
+
+    .stat-card .number {
+        font-size: 1.5rem;
     }
 
     .main-content .card {
@@ -1014,18 +1115,90 @@ body {
     }
 
     .main-content .card-body {
-        padding: 10px;
+        padding: 12px;
+    }
+
+    .main-content .card-title {
+        font-size: 1.1rem;
     }
 
     .table-responsive {
-        font-size: 14px;
+        font-size: 0.8rem;
     }
 
-    .header h2 {
-        font-size: 1.2rem;
+    .table th,
+    .table td {
+        padding: 8px 6px;
     }
 
     .user-info span {
         display: none;
+    }
+
+    .btn {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.85rem;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .modal-dialog {
+        margin: 10px;
+    }
+
+    .modal-content {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 360px) {
+    .sidebar {
+        width: 240px;
+    }
+
+    .main-content {
+        padding: 55px 8px 8px;
+    }
+
+    .header h2 {
+        font-size: 1rem;
+    }
+
+    .stat-card .number {
+        font-size: 1.3rem;
+    }
+
+    .table {
+        font-size: 0.75rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-link:active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn:hover {
+        transform: none;
+    }
+
+    .btn:active {
+        transform: scale(0.95);
+    }
+
+    /* Increase touch target sizes */
+    .nav-link,
+    .btn,
+    .mobile-menu-btn {
+        min-height: 44px;
     }
 }
