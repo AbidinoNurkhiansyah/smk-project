@@ -43,7 +43,9 @@ class ApiAuth
         }
 
         // Attach user to request
-        $request->merge(['user' => $user]);
+        // Convert stdClass to array for merge
+        $userArray = (array) $user;
+        $request->merge(['user' => $userArray]);
         $request->setUserResolver(function () use ($user) {
             return $user;
         });
